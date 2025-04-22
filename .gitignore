@@ -1,0 +1,10 @@
+publish.sh
+*.pyc
+__pycache__/
+*.pkl
+dist/
+build/
+**/.DS_Store
+**/*.log
+**/connections.toml
+tests/*

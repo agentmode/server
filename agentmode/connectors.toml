@@ -1,0 +1,42 @@
+[[databases]]
+
+name = "MySQL"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "database"
+
+[[databases]]
+name = "PostgreSQL"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "database"
+
+[[databases]]
+name = "MariaDB"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "database"
+
+[[databases]]
+name = "CockroachDB"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "database"
+
+[[databases]]
+name = "Oracle"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "database"
+
+[[databases]]
+name = "TimescaleDB"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "database"
+
+[[databases]]
+name = "SAP"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "database"
