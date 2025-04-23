@@ -5,23 +5,23 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import text
 import pandas as pd
 
-from logs import logger
+from .logs import logger
 
 subclasses = {}
 
 @dataclass
 class DatabaseConnection:
-	credentials: dict
+	settings: dict
 
 	def __init_subclass__(cls, **kwargs):
 		super().__init_subclass__(**kwargs)
 		subclasses[cls.platform] = cls
 
 	@classmethod
-	def create(cls, platform, credentials, **kwargs):
-		if platform not in ['MySQL', 'PostgreSQL', 'SQLite']:
+	def create(cls, platform, settings, **kwargs):
+		if platform not in ['MySQL', 'PostgreSQL', 'MariaDB', 'SQLite']:
 			raise ValueError('Bad DatabaseConnection platform {}'.format(platform))
-		return subclasses[platform](credentials=credentials, **kwargs)
+		return subclasses[platform](settings=settings, **kwargs)
 	
 	def is_read_only_query(self, query_string: str, method="blocklist") -> bool:
 		"""
@@ -79,26 +79,25 @@ class DatabaseConnection:
 			return False
 		return False
 	
-@dataclass
-class PostgreSQLConnection(DatabaseConnection):
-	platform = 'PostgreSQL'
-
 	async def connect(self):
 		"""
-		Initialize the PostgreSQL connection.
+		Initialize the database connection.
 		we do this in a separate method so we can return a boolean value on success/failure
 		"""
 		try:
-			database_uri = f"postgresql+asyncpg://{self.credentials['username']}:{self.credentials['password']}@{self.credentials['host']}:{self.credentials['port']}/{self.credentials['database_name']}"
-			self.engine = create_async_engine(database_uri, echo=False, future=True) # echo is False, as we don't want to log to stdout (it interferes with MCP on stdio)
+			self.engine = create_async_engine(self.database_uri, echo=False, future=True) # echo is False, as we don't want to log to stdout (it interferes with MCP on stdio)
 			self.session_factory = sessionmaker(self.engine, expire_on_commit=False, class_=AsyncSession)
 			return True
 		except Exception as e:
-			logger.error(f"Failed to create PostgreSQL connection: {e}")
+			logger.error(f"Failed to create database connection: {e}")
 			return False
-
+	
 	async def query(self, query_string: str) -> pd.DataFrame:
 		try:
+			if self.settings.get('read_only', True):
+				if not self.is_read_only_query(query_string):
+					logger.error(f"Query is not read-only, not executing: {query_string}")
+					return False, None
 			logger.debug(f"Executing query: {query_string}")
 			async with self.session_factory() as session:
 				result = await session.execute(text(query_string))
@@ -112,3 +111,38 @@ class PostgreSQLConnection(DatabaseConnection):
 
 	async def disconnect(self):
 		await self.engine.dispose()
+	
+@dataclass
+class PostgreSQLConnection(DatabaseConnection):
+	platform = 'PostgreSQL'
+
+	def __post_init__(self):
+		self.database_uri = f"postgresql+asyncpg://{self.settings['username']}:{self.settings['password']}@{self.settings['host']}:{self.settings['port']}/{self.settings['database_name']}"
+
+@dataclass
+class MySQLConnection(DatabaseConnection):
+	platform = 'MySQL'
+
+	def __post_init__(self):
+		self.database_uri = f"mysql+aiomysql://{self.settings['username']}:{self.settings['password']}@{self.settings['host']}:{self.settings['port']}/{self.settings['database_name']}"
+
+@dataclass
+class MariaDBConnection(DatabaseConnection):
+	platform = 'MariaDB'
+
+	def __post_init__(self):
+		self.database_uri = f"mysql+aiomysql://{self.settings['username']}:{self.settings['password']}@{self.settings['host']}:{self.settings['port']}/{self.settings['database_name']}"
+
+@dataclass
+class OracleDBConnection(DatabaseConnection):
+    platform = 'Oracle'
+
+    def __post_init__(self):
+        self.database_uri = f"oracle+oracledb://{self.settings['username']}:{self.settings['password']}@{self.settings['host']}:{self.settings['port']}/?service_name={self.settings['service_name']}"
+
+@dataclass
+class SQLServerConnection(DatabaseConnection):
+	platform = 'SQLServer'
+
+	def __post_init__(self):
+		self.database_uri = f"mssql+aioodbc://{self.settings['username']}:{self.settings['password']}@{self.settings['host']}:{self.settings['port']}/{self.settings['database_name']}?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"

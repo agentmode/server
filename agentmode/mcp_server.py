@@ -11,8 +11,8 @@ from benedict import benedict
 import httpx
 from mcp.server.fastmcp import FastMCP, Context
 
-from logs import logger
-from database import DatabaseConnection
+from .logs import logger
+from .database import DatabaseConnection
 
 CONNECTIONS_FILE = "connections.toml"
 # to debug: uv run mcp dev mcp_server.py

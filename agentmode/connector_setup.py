@@ -2,7 +2,6 @@ import os
 import copy
 
 import gradio as gr
-#from gradio_toggle import Toggle
 from benedict import benedict
 
 from logs import logger
@@ -13,17 +12,19 @@ CONNECTIONS_FILE = "connections.toml"
 
 FORM_TYPES = {
     "database": {
-        "host": "text",
-        "port": "integer",
-        "username": "text",
-        "password": "password",
-        "database_name": "text",
+        "host": {"label": "Host", "name": "host", "required": True},
+        "port": {"label": "Port", "name": "port", "required": True},
+        "username": {"label": "Username", "name": "username", "required": True},
+        "password": {"label": "Password", "name": "password", "required": True},
+        "database_name": {"label": "Database Name", "name": "database_name", "required": True},
+        "service_name": {"label": "Service Name", "name": "service_name", "required": False},
+        "read_only": {"label": "Only Allow Read-Only Queries", "name": "read_only", "required": False}
     },
     "api": {
-        "url": "text",
-        "port": "integer",
-        "api_key": "password",
-        "headers": "json"
+        "url": {"label": "URL", "name": "url", "required": True},
+        "port": {"label": "Port", "name": "port", "required": True},
+        "api_key": {"label": "API Key", "name": "api_key", "required": True},
+        "headers": {"label": "Headers", "name": "headers", "required": False}
     },
 }
 
@@ -93,11 +94,6 @@ def create_card(input, type, state):
             connector = input
             gr.Markdown(connector.get("name"))
             gr.Image(value=connector.get("logo"), show_label=False, height=100, interactive=False).select(lambda: event_handler(connector, None), None, state)
-        """input = Toggle(
-                label="Input",
-                value=False,
-                interactive=True,
-        )"""
     return card
     
 def create_gradio_interface():
@@ -168,16 +164,22 @@ def create_form(form_type, state):
     with gr.Column() as column:
         
         inputs = []
-        for field, field_type in form_fields.items():
-            if field_type == "text":
-                inputs.append(gr.Textbox(label=field.capitalize(), value=existing_connection.get(field, ""), interactive=True))
-            elif field_type == "integer":
-                inputs.append(gr.Number(label=field.capitalize(), value=existing_connection.get(field, 0), interactive=True))
-            elif field_type == "password":
-                inputs.append(gr.Textbox(label=field.capitalize(), value=existing_connection.get(field, ""), type="password", interactive=True))
-            elif field_type == "json":
-                inputs.append(gr.Textbox(label=field.capitalize(), value=existing_connection.get(field, ""), lines=5, placeholder="Enter JSON here", interactive=True))
-        
+        for field, field_info in form_fields.items():
+            label = field_info["label"]
+            name = field_info["name"]
+            required = field_info["required"]
+
+            if field == "text":
+                inputs.append(gr.Textbox(label=label, value=existing_connection.get(name, ""), interactive=True))
+            elif field == "integer":
+                inputs.append(gr.Number(label=label, value=existing_connection.get(name, 0), interactive=True))
+            elif field == "password":
+                inputs.append(gr.Textbox(label=label, value=existing_connection.get(name, ""), type="password", interactive=True))
+            elif field == "json":
+                inputs.append(gr.Textbox(label=label, value=existing_connection.get(name, ""), lines=5, placeholder="Enter JSON here", interactive=True))
+            elif field == "checkbox":
+                inputs.append(gr.Checkbox(label=label, value=existing_connection.get(name, False), interactive=True))
+
         with gr.Column():
             gr.Button("Submit", variant="primary").click(handle_submit, inputs, state)
             gr.Button("Go Back", variant="secondary").click(lambda: 'connectors', None, state)
