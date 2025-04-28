@@ -1,11 +1,13 @@
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import text
+from sqlalchemy import text, create_engine
 import pandas as pd
 
-from .logs import logger
+from agentmode.logs import logger
 
 subclasses = {}
 
@@ -13,16 +15,23 @@ subclasses = {}
 class DatabaseConnection:
 	settings: dict
 
+	def __init__(self):
+		self.threadpool = None
+		self.create_engine_kwargs = {}
+
 	def __init_subclass__(cls, **kwargs):
 		super().__init_subclass__(**kwargs)
 		subclasses[cls.platform] = cls
 
 	@classmethod
 	def create(cls, platform, settings, **kwargs):
-		if platform not in ['MySQL', 'PostgreSQL', 'MariaDB', 'SQLite']:
-			raise ValueError('Bad DatabaseConnection platform {}'.format(platform))
-		return subclasses[platform](settings=settings, **kwargs)
-	
+		if platform not in subclasses.keys():
+			raise ValueError('Unknown DatabaseConnection platform {}'.format(platform))
+		instance = subclasses[platform](settings=settings, **kwargs)
+		if instance.driver_type == 'sync':
+			instance.threadpool = ThreadPoolExecutor()
+		return instance
+
 	def is_read_only_query(self, query_string: str, method="blocklist") -> bool:
 		"""
 		Determine if the query is a read-only query.
@@ -78,20 +87,26 @@ class DatabaseConnection:
 			logger.error(f"Error parsing query: {e}")
 			return False
 		return False
-	
+
 	async def connect(self):
 		"""
 		Initialize the database connection.
 		we do this in a separate method so we can return a boolean value on success/failure
 		"""
 		try:
-			self.engine = create_async_engine(self.database_uri, echo=False, future=True) # echo is False, as we don't want to log to stdout (it interferes with MCP on stdio)
-			self.session_factory = sessionmaker(self.engine, expire_on_commit=False, class_=AsyncSession)
+			if self.driver_type == 'async':
+				self.engine = create_async_engine(self.database_uri, echo=False, future=True, **self.create_engine_kwargs) # echo is False, as we don't want to log to stdout (it interferes with MCP on stdio)
+				self.session_factory = sessionmaker(self.engine, expire_on_commit=False, class_=AsyncSession)
+			elif self.driver_type == 'sync':
+				def sync_connect():
+					self.engine = create_engine(self.database_uri, echo=False, future=True, **self.create_engine_kwargs)
+					self.connection = self.engine.connect()
+				await asyncio.get_event_loop().run_in_executor(self.threadpool, sync_connect)
 			return True
 		except Exception as e:
 			logger.error(f"Failed to create database connection: {e}")
 			return False
-	
+
 	async def query(self, query_string: str) -> pd.DataFrame:
 		try:
 			if self.settings.get('read_only', True):
@@ -99,22 +114,63 @@ class DatabaseConnection:
 					logger.error(f"Query is not read-only, not executing: {query_string}")
 					return False, None
 			logger.debug(f"Executing query: {query_string}")
-			async with self.session_factory() as session:
-				result = await session.execute(text(query_string))
-				# Convert result to pandas DataFrame
-				df = pd.DataFrame(result.fetchall(), columns=result.keys())
-				return True, df
+			if self.driver_interface == 'sqlalchemy':
+				if self.driver_type == 'async':
+					async with self.session_factory() as session:
+						result = await session.execute(text(query_string))
+						# Convert result to pandas DataFrame
+						df = pd.DataFrame(result.fetchall(), columns=result.keys())
+						return True, df
+				elif self.driver_type == 'sync':
+					def sync_query():
+						result = self.connection.execute(text(query_string))
+						return pd.DataFrame(result.fetchall(), columns=result.keys())
+					df = await asyncio.get_event_loop().run_in_executor(self.threadpool, sync_query)
+					return True, df
+			elif self.driver_interface == 'dbapi':
+				if self.driver_type == 'sync':
+					cur = self.connection.cursor()
+					cur.execute(query_string)
+					rows = cur.fetchall()
+					columns = [desc[0] for desc in cur.description]
+					df = pd.DataFrame(rows, columns=columns)
+					cur.close()
+					return True, df
+				elif self.driver_type == 'async':
+					cur = await self.connection.cursor()
+					await cur.execute(query_string)
+					rows = await cur.fetchall()
+					columns = [desc[0] for desc in await cur.description()]
+					df = pd.DataFrame(rows, columns=columns)
+					await cur.close()
+					return True, df
 		except Exception as e:
 			# Log the error and re-raise it
 			logger.error(f"Query failed: {e}")
 			return False, None
 
 	async def disconnect(self):
-		await self.engine.dispose()
-	
+		if self.driver_interface == 'sqlalchemy':
+			if self.driver_type == 'async':
+				await self.engine.dispose()
+			else:
+				def sync_disconnect():
+					self.connection.close()
+					self.engine.dispose()
+				await asyncio.get_event_loop().run_in_executor(self.threadpool, sync_disconnect)
+		elif self.driver_interface == 'dbapi':
+			if self.driver_type == 'async':
+				await self.connection.close()
+			else:
+				def sync_disconnect():
+					self.connection.close()
+				await asyncio.get_event_loop().run_in_executor(self.threadpool, sync_disconnect)
+
 @dataclass
 class PostgreSQLConnection(DatabaseConnection):
 	platform = 'PostgreSQL'
+	driver_type = 'async'
+	driver_interface = 'sqlalchemy'
 
 	def __post_init__(self):
 		self.database_uri = f"postgresql+asyncpg://{self.settings['username']}:{self.settings['password']}@{self.settings['host']}:{self.settings['port']}/{self.settings['database_name']}"
@@ -122,27 +178,177 @@ class PostgreSQLConnection(DatabaseConnection):
 @dataclass
 class MySQLConnection(DatabaseConnection):
 	platform = 'MySQL'
-
-	def __post_init__(self):
-		self.database_uri = f"mysql+aiomysql://{self.settings['username']}:{self.settings['password']}@{self.settings['host']}:{self.settings['port']}/{self.settings['database_name']}"
-
-@dataclass
-class MariaDBConnection(DatabaseConnection):
-	platform = 'MariaDB'
+	driver_type = 'async'
+	driver_interface = 'sqlalchemy'
 
 	def __post_init__(self):
 		self.database_uri = f"mysql+aiomysql://{self.settings['username']}:{self.settings['password']}@{self.settings['host']}:{self.settings['port']}/{self.settings['database_name']}"
 
 @dataclass
 class OracleDBConnection(DatabaseConnection):
-    platform = 'Oracle'
+	platform = 'Oracle'
+	driver_type = 'async'
+	driver_interface = 'sqlalchemy'
 
-    def __post_init__(self):
-        self.database_uri = f"oracle+oracledb://{self.settings['username']}:{self.settings['password']}@{self.settings['host']}:{self.settings['port']}/?service_name={self.settings['service_name']}"
+	def __post_init__(self):
+		self.database_uri = f"oracle+oracledb://{self.settings['username']}:{self.settings['password']}@{self.settings['host']}:{self.settings['port']}/?service_name={self.settings['service_name']}"
 
 @dataclass
 class SQLServerConnection(DatabaseConnection):
 	platform = 'SQLServer'
+	driver_type = 'async'
+	driver_interface = 'sqlalchemy'
 
 	def __post_init__(self):
 		self.database_uri = f"mssql+aioodbc://{self.settings['username']}:{self.settings['password']}@{self.settings['host']}:{self.settings['port']}/{self.settings['database_name']}?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"
+
+@dataclass
+class HiveConnection(DatabaseConnection):
+	platform = 'Hive'
+	driver_type = 'sync'
+	driver_interface = 'sqlalchemy'
+
+	def __post_init__(self):
+		self.database_uri = f"hive+https://{self.settings['username']}:{self.settings['password']}@{self.settings['host']}:{self.settings['port']}/"
+
+@dataclass
+class PrestoConnection(DatabaseConnection):
+	"""
+	PyHive via SQLAlchemy also supports Presto, but it is no longer maintained
+	so we use https://github.com/prestodb/presto-python-client via DBAPI
+	"""
+	platform = 'Presto'
+	driver_type = 'sync'
+	driver_interface = 'dbapi'
+
+	async def connect(self):
+		"""
+		Initialize the database connection.
+		we do this in a separate method so we can return a boolean value on success/failure
+		"""
+		try:
+			def sync_connect():
+				import prestodb
+				credentials = {
+					'host': self.settings['host'],
+					'port': self.settings['port'],
+					'user': self.settings['username'],
+					'catalog': self.settings.get('catalog', 'hive'),
+					'schema': self.settings.get('schema', 'default'),
+				}
+				if self.settings.get('username') and self.settings.get('password'):
+					auth=prestodb.auth.BasicAuthentication(self.settings['username'], self.settings['password'])
+					credentials['auth'] = auth
+				self.connection = prestodb.dbapi.connect(**credentials)
+			await asyncio.get_event_loop().run_in_executor(self.threadpool, sync_connect)
+			return True
+		except Exception as e:
+			logger.error(f"Failed to create database connection: {e}")
+			return False
+
+@dataclass
+class Trino(DatabaseConnection):
+	"""
+	
+	"""
+	platform = 'Trino'
+	driver_type = 'async'
+	driver_interface = 'dbapi'
+
+	async def connect(self):
+		try:
+			import aiotrino
+			credentials = {
+				'host': self.settings['host'],
+				'port': self.settings['port'],
+				'user': self.settings['username'],
+				'catalog': self.settings.get('catalog', 'hive'),
+				'schema': self.settings.get('schema', 'default'),
+			}
+			if self.settings.get('username') and self.settings.get('password'):
+				auth=auth=aiotrino.auth.BasicAuthentication(self.settings['username'], self.settings['password'])
+				credentials['auth'] = auth
+			self.connection = aiotrino.dbapi.connect(**credentials)
+			return True
+		except Exception as e:
+			logger.error(f"Failed to create database connection: {e}")
+			return False
+		
+@dataclass
+class Snowflake(DatabaseConnection):
+	platform = 'Snowflake'
+	driver_type = 'sync' # https://github.com/snowflakedb/snowflake-sqlalchemy/issues/218
+	driver_interface = 'sqlalchemy'
+
+	def __post_init__(self):
+		from snowflake.sqlalchemy import URL
+		credentials = {key: self.settings.get(key) for key in ['account', 'user', 'password', 'database', 'schema', 'warehouse', 'role', 'timezone'] if key in self.settings}
+		self.database_uri = URL(**self.credentials)
+
+@dataclass
+class BigQuery(DatabaseConnection):
+	platform = 'BigQuery'
+	driver_type = 'sync' # https://github.com/googleapis/python-bigquery-sqlalchemy/issues/1071
+	driver_interface = 'sqlalchemy'
+
+	def __post_init__(self):
+		self.database_uri = f"bigquery://{self.settings['project_name']}"
+		self.create_engine_kwargs = {
+			'credentials_path': self.settings.get('credentials_path', None),
+		}
+
+@dataclass
+class Clickhouse(DatabaseConnection):
+	platform = 'Clickhouse'
+	driver_type = 'sync'
+	driver_interface = 'sqlalchemy'
+
+	def __post_init__(self):
+			self.database_uri = f"clickhouse+{self.settings['protocol']}://{self.settings['user']}:{self.settings['password']}@{self.settings['host']}:{self.settings['port']}/{self.settings['database']}"
+
+@dataclass
+class Databricks(DatabaseConnection):
+	platform = 'Databricks'
+	driver_type = 'sync'
+	driver_interface = 'sqlalchemy'
+
+	def __post_init__(self):
+		self.database_uri = f"databricks://token:{self.settings['access_token']}@{self.settings['host']}?http_path={self.settings['http_path']}&catalog={self.settings['catalog']}&schema={self.settings['schema']}"
+
+@dataclass
+class SAPHana(DatabaseConnection):
+	platform = 'SAP HANA'
+	driver_type = 'sync'
+	driver_interface = 'sqlalchemy'
+
+	def __post_init__(self):
+		self.database_uri = f"hana://{self.settings['username']}:{self.settings['password']}@{self.settings['host']}:{self.settings['port']}"
+		if self.settings.get('database_name'):
+			self.database_uri += f'/{self.settings['database_name']}'
+
+@dataclass
+class Teradata(DatabaseConnection):
+	platform = 'Teradata'
+	driver_type = 'sync'
+	driver_interface = 'sqlalchemy'
+
+	def __post_init__(self):
+		self.database_uri = f"teradatasql://{self.settings['username']}:{self.settings['password']}@{self.settings['host']}"
+
+@dataclass
+class CockroachDB(DatabaseConnection):
+	platform = 'CockroachDB'
+	driver_type = 'async'
+	driver_interface = 'sqlalchemy'
+
+	def __post_init__(self):
+		self.database_uri = f"cockroachdb+asyncpg://{self.settings['username']}@{self.settings['host']}:{self.settings['port']}/defaultdb"
+
+@dataclass
+class AWSAthena(DatabaseConnection):
+	platform = 'AWS Athena'
+	driver_type = 'sync'
+	driver_interface = 'sqlalchemy'
+
+	def __post_init__(self):
+		self.database_uri = f"awsathena+rest://{self.settings['aws_access_key_id']}:{self.settings['aws_secret_access_key']}@athena.{self.settings['region_name']}.amazonaws.com:443/{self.settings['schema_name']}?s3_staging_dir={self.settings['s3_staging_dir']}"

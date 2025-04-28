@@ -22,8 +22,7 @@ PORT = os.getenv("PORT", 13000)
 import gradio as gr
 
 from logs import logger
-from connectors import create_gradio_interface
-from form import gradio_form
+from connector_setup import create_gradio_interface
 
 async def startup():
 	"""
@@ -62,7 +61,6 @@ async def test(request):
 	return HTMLResponse(result[0], status_code=200)
 	
 routes = [
-	Route("/connection_form/{id}", endpoint=connection_form, methods=['GET']), # get credentials for an existing connection
 	Route("/connection_form", endpoint=connection_form, methods=['POST']), # save credentials for a new connection
 	Route("/health_check", endpoint=ping, methods=['GET']),
 	Route("/test", endpoint=test, methods=['GET']),

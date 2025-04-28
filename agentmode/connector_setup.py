@@ -4,28 +4,28 @@ import copy
 import gradio as gr
 from benedict import benedict
 
-from logs import logger
+from agentmode.logs import logger
 
 # Load connectors from a TOML file
 CONNECTORS_FILE = "connectors.toml"
 CONNECTIONS_FILE = "connections.toml"
 
+# beyond these standard forms, some connectors have their own defined in connectors.toml
 FORM_TYPES = {
-    "database": {
-        "host": {"label": "Host", "name": "host", "required": True},
-        "port": {"label": "Port", "name": "port", "required": True},
-        "username": {"label": "Username", "name": "username", "required": True},
-        "password": {"label": "Password", "name": "password", "required": True},
-        "database_name": {"label": "Database Name", "name": "database_name", "required": True},
-        "service_name": {"label": "Service Name", "name": "service_name", "required": False},
-        "read_only": {"label": "Only Allow Read-Only Queries", "name": "read_only", "required": False}
-    },
-    "api": {
-        "url": {"label": "URL", "name": "url", "required": True},
-        "port": {"label": "Port", "name": "port", "required": True},
-        "api_key": {"label": "API Key", "name": "api_key", "required": True},
-        "headers": {"label": "Headers", "name": "headers", "required": False}
-    },
+    "database": [
+        {"type": "text", "label": "Host", "name": "host", "required": True},
+        {"type": "integer", "label": "Port", "name": "port", "required": True},
+        {"type": "text", "label": "Username", "name": "username", "required": True},
+        {"type": "password", "label": "Password", "name": "password", "required": True},
+        {"type": "text", "label": "Database Name", "name": "database_name", "required": True},
+        {"type": "checkbox", "label": "Only Allow Read-Only Queries", "name": "read_only", "required": False}
+    ],
+    "api": [
+        {"type": "text", "label": "URL", "name": "url", "required": True},
+        {"type": "text", "label": "Port", "name": "port", "required": True},
+        {"type": "password", "label": "API Key", "name": "api_key", "required": True},
+        {"type": "text", "label": "Headers", "name": "headers", "required": False}
+    ],
 }
 
 def load_connectors():
@@ -78,27 +78,24 @@ def create_card(input, type, state):
     with gr.Column() as card:
         if type == 'connections':
             global existing_connection_counter
-            # make a copy of the existing_connection_counter, so that when we pass it to the event handler, it doesn't use the global variable
-            # which will be incremented for each new connection
             counter = copy.deepcopy(existing_connection_counter)
             gr.Markdown(input.get("connector"))
-            # look up the connector in the connectors_data
             connector = list_connectors.get(input.get("connector"))
             if connector:
                 logger.debug(f"adding existing connection for {input.get('connector')} with index {existing_connection_counter}")
-                gr.Image(value=connector.get("logo"), show_label=False, height=100, interactive=False).select(lambda: event_handler(connector, counter), None, state)
+                gr.Image(value=connector.get("logo"), show_label=False, interactive=False, scale=1, elem_classes=["logo"]).select(lambda: event_handler(connector, counter), None, state)
                 existing_connection_counter += 1
             else:
                 logger.error(f"Connector {input.get('connector')} not found in connectors data")
         elif type == 'connectors':
             connector = input
             gr.Markdown(connector.get("name"))
-            gr.Image(value=connector.get("logo"), show_label=False, height=100, interactive=False).select(lambda: event_handler(connector, None), None, state)
+            gr.Image(value=connector.get("logo"), show_label=False, interactive=False, scale=1, elem_classes=["logo"]).select(lambda: event_handler(connector, None), None, state)
     return card
     
 def create_gradio_interface():
     """Create the Gradio interface."""
-    with gr.Blocks(title='agentmode') as demo:
+    with gr.Blocks(title='agentmode', css_paths=['static/custom.css']) as demo:
         gr.Markdown("# Connector Management")
 
         state = gr.State('connectors')
@@ -112,14 +109,10 @@ def create_gradio_interface():
                 # then load all available connectors
                 for group_name, group_connectors in connectors_data.items():
                     create_group(group_name, group_connectors, 'connectors', state)
-            elif layout_type == 'form_database':
+            elif layout_type == 'form':
                 with gr.Column():
-                    gr.Markdown("## Database Form")
-                    create_form('database', state)
-            elif layout_type == 'form_api':
-                with gr.Column():
-                    gr.Markdown("## API Form")
-                    create_form('api', state)
+                    gr.Markdown("## Form")
+                    create_form(state)
     return demo
 
 def handle_submit(*args, **kwargs):
@@ -130,6 +123,14 @@ def handle_submit(*args, **kwargs):
         # zip the form fields with their values
         form_data = dict(zip(FORM_TYPES[selected_form_type].keys(), args))
         logger.info(f"Form data: {form_data}")
+    elif selected_form_type=='custom':
+        form_fields = selected_connector.get("form_fields")
+        if form_fields:
+            form_data = dict(zip(form_fields.keys(), args))
+    else:
+        logger.error("Unknown form type")
+
+    if form_data:
         form_data["connector"] = selected_connector.get("name")
         # update the connections_data with the new connection
         # and persist it to the TOML file
@@ -140,8 +141,6 @@ def handle_submit(*args, **kwargs):
             connections_data['connections'].append(form_data)
         # save the updated connections data to the TOML file
         connections_data.to_toml(filepath=CONNECTIONS_FILE)
-    else:
-        logger.error("Unknown form type")
     return 'connectors'
 
 def event_handler(connector, connection_index):
@@ -150,11 +149,14 @@ def event_handler(connector, connection_index):
     selected_connector = connector
     selected_connection_index = connection_index
     selected_form_type = connector.get("authentication_form_type")
-    return 'form_' + selected_form_type
+    return 'form'
 
-def create_form(form_type, state):
-    form_fields = FORM_TYPES.get(form_type, {})
-    global selected_connection_index
+def create_form(state):
+    global selected_connector, selected_connection_index, selected_form_type
+    if selected_form_type=='custom':
+        form_fields = selected_connector.get('form_fields')
+    else:
+        form_fields = FORM_TYPES.get(selected_form_type, {})
     existing_connection = {}
     if selected_connection_index is not None:
         # pre-fill the form with existing connection data
@@ -164,20 +166,21 @@ def create_form(form_type, state):
     with gr.Column() as column:
         
         inputs = []
-        for field, field_info in form_fields.items():
+        for field_info in form_fields:
             label = field_info["label"]
             name = field_info["name"]
             required = field_info["required"]
+            field_type = field_info["type"]
 
-            if field == "text":
+            if field_type == "text":
                 inputs.append(gr.Textbox(label=label, value=existing_connection.get(name, ""), interactive=True))
-            elif field == "integer":
+            elif field_type == "integer":
                 inputs.append(gr.Number(label=label, value=existing_connection.get(name, 0), interactive=True))
-            elif field == "password":
+            elif field_type == "password":
                 inputs.append(gr.Textbox(label=label, value=existing_connection.get(name, ""), type="password", interactive=True))
-            elif field == "json":
+            elif field_type == "json":
                 inputs.append(gr.Textbox(label=label, value=existing_connection.get(name, ""), lines=5, placeholder="Enter JSON here", interactive=True))
-            elif field == "checkbox":
+            elif field_type == "checkbox":
                 inputs.append(gr.Checkbox(label=label, value=existing_connection.get(name, False), interactive=True))
 
         with gr.Column():
