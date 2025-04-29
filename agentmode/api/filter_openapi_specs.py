@@ -1,4 +1,5 @@
 from asyncio import Semaphore, gather
+from dataclasses import dataclass
 
 import litellm
 
@@ -14,6 +15,7 @@ MAX_CONCURRENT_CALLS = 5
 LLM_MODEL = "gpt-4.1-nano"  # or "gemini/gemini-2.0-flash"
 # set your OpenAI or Google Gemini API key in the environment variables OPENAI_API_KEY or GEMINI_API_KEY
 
+@dataclass
 class FilterOpenAPISpecs:
     """
     Filter an OpenAPI specification to only include

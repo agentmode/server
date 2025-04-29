@@ -14,6 +14,7 @@ class APIConnection:
         self.mcp_tools = []
         self.auth_type = None
         self.credentials = None
+        self.server_url = None
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -27,19 +28,66 @@ class APIConnection:
         instance.client = httpx.Client()
         return instance
     
-    def create_dynamic_tool_or_resource(self, fn_name, parameters={}):
+    def create_dynamic_tool_or_resource(self, fn_name, parameters, request_body_parameters):
         async def dynamic_tool_or_resource(input_parameters: dict = {}) -> str:
             try:
+                if not parameters.get('server_url') and not self.server_url:
+                    raise ValueError("Missing server_url in parameters and/or class")
+                # if parameters.get('server_url') is None, use the server_url from the class
+                if not parameters.get('server_url'):
+                    parameters['server_url'] = self.server_url
+
                 # Validate required parameters
-                for param_name, param_details in parameters.items():
-                    if param_details.get('required') and param_name not in input_parameters:
+                for parameter in parameters:
+                    param_name = parameter.get('name')
+                    if parameter.get('required') and param_name not in input_parameters:
                         raise ValueError(f"Missing required input parameter: {param_name}")
+                    # TODO: validate enum values for parameters https://swagger.io/docs/specification/v3_0/describing-parameters/#enum-parameters
 
                 # Log the query and parameters
                 logger.debug(f"Executing API request for: {fn_name} with parameters: {input_parameters}")
 
+                # for each parameter in input_parameters, check how it needs to be sent by checking the parameters dict
+                # https://swagger.io/docs/specification/v3_0/describing-parameters/
+                url_params = {}
+                headers = {}
+                body_data = {}
+                form_data = {}
+                for parameter in parameters:
+                    param_name = parameter.get('name')
+                    if param_name in input_parameters:
+                        # Check if the parameter is a query parameter
+                        if parameter.get('in') == 'query':
+                            url_params[param_name] = input_parameters[param_name]
+                        # Check if the parameter is a URL path parameter
+                        elif parameter.get('in') == 'path':
+                            # Replace the parameter in the path with its value
+                            if parameters.get('path'):
+                                parameters['path'] = parameters['path'].replace(f"{{{param_name}}}", str(input_parameters[param_name]))
+                            else:
+                                raise ValueError(f"Missing path for path parameter: {param_name}")
+                        # Check if the parameter is a header parameter
+                        elif parameter.get('in') == 'header':
+                            headers[param_name] = input_parameters[param_name]
+
+                # In OpenAPI v3, Body and form parameters are replaced with requestBody, but we convert all v2 specs to v3 before parsing
+                # check if the parameter is a body parameter
+                if request_body_parameters:
+                    content = request_body_parameters.get('content')
+                    for content_type, content_details in content.items():
+                        if content_type in ['application/json', 'application/x-www-form-urlencoded']:
+                            properties = content.get(content_type, {}).get('schema', {}).get('properties', {})
+                            for param_name, param_details in properties.items():
+                                if param_name in input_parameters:
+                                    if content_type == 'application/json':
+                                        body_data[param_name] = input_parameters[param_name]
+                                    elif content_type == 'application/x-www-form-urlencoded':
+                                        form_data[param_name] = input_parameters[param_name]
+
+                full_url = parameters.get('server_url', '') + parameters.get('path', '')
+
                 # Send the request with the provided parameters
-                success_flag, result = await self.send_request(parameters.get('method'), parameters.get('url'), **input_parameters)
+                success_flag, result = await self.send_request(parameters.get('method'), full_url, url_params, headers, body_data, form_data)
                 if success_flag:
                     logger.debug(f"API result: {result}")
                     return result
@@ -62,7 +110,7 @@ class APIConnection:
             items = self.mcp_resources if type_ == 'resource' else self.mcp_tools
             for item in items:
                 # Create a dynamic function
-                fn = self.create_dynamic_tool_or_resource(f"{self.name}-{item.get('operationId')}", item.get('parameters', {}))
+                fn = self.create_dynamic_tool_or_resource(f"{self.name}-{item.get('operationId')}", item.get('parameters', []), item.get('request_body_parameters', {}))
                 fn.__name__ = item.get('operationId')
                 fn.__doc__ = self.generate_docstring_for_function(
                     item.get('operationId'),
@@ -111,7 +159,7 @@ Args:
         Perform authentication using the provided settings.
 
         Args:
-            auth_type (str): The type of authentication (e.g., 'basic', 'bearer', 'api_key').
+            auth_type (str): The type of authentication (e.g., 'basic', 'bearer', 'api_key', 'digest').
             credentials (dict): A dictionary containing authentication credentials.
 
         Returns:
@@ -140,6 +188,14 @@ Args:
                     raise ValueError("Missing API key for API Key Auth")
                 return {header_name: api_key}
 
+            elif auth_type == 'digest':
+                username = credentials.get('username')
+                password = credentials.get('password')
+                if not username or not password:
+                    raise ValueError("Missing username or password for Digest Auth")
+                auth_header = httpx.DigestAuth(username, password)
+                return {"Authorization": auth_header}
+
             else:
                 raise ValueError(f"Unsupported authentication type: {auth_type}")
 
@@ -147,29 +203,46 @@ Args:
             logger.error(f"Authentication error: {e}")
             raise
 
-    async def send_request(self, method: str, url: str, **kwargs):
+    async def send_request(self, method: str, url: str, url_params: dict = {}, headers: dict = {}, body_data: dict = {}, form_data: dict = {}):
         """
         Make an asynchronous HTTP request using the httpx client.
 
         Args:
             method (str): HTTP method (e.g., 'GET', 'POST').
             url (str): The URL for the request.
+            url_params (dict): URL parameters to be included in the request.
+            headers (dict): Headers to be included in the request.
+            body_data (dict): Body data to be included in the request.
+            form_data (dict): Form data to be included in the request.
+            **kwargs: Additional keyword arguments for the request.
 
         Returns:
             tuple: A tuple containing a success flag (bool) and the response data (dict or None).
         """
         try:
-            headers = kwargs.pop('headers', {})
-
             # Add authentication headers if auth_type is provided
             if self.auth_type and self.credentials:
                 auth_headers = self.authentication(self.auth_type, self.credentials)
                 headers.update(auth_headers)
 
             async with httpx.AsyncClient() as client:
-                response = await client.request(method, url, headers=headers, **kwargs)
+                # form-encoded data is sent as data=data parameter, where data is a dict
+                # json data is sent as json=data parameter, where data is a dict
+                # query parameters are sent as params=params parameter, where params is a dict
+                # if there are parameters in the URL itself that need to be replaced, we need to do that ourselves
+                kwargs = {}
+                if form_data:
+                    kwargs['data'] = form_data
+                if body_data:
+                    kwargs['json'] = body_data
+                if headers:
+                    kwargs['headers'] = headers
+                if url_params:
+                    kwargs['params'] = url_params
+                
+                response = await client.request(method, url, **kwargs)
                 response.raise_for_status()  # Raise an error for non-2xx responses
-                return True, response.json()
+                return True, response.text
 
         except httpx.RequestError as e:
             logger.error(f"An error occurred while making the request: {e}")

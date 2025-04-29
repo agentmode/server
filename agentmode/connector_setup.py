@@ -21,10 +21,23 @@ FORM_TYPES = {
         {"type": "checkbox", "label": "Only Allow Read-Only Queries", "name": "read_only", "required": False}
     ],
     "api": [
-        {"type": "text", "label": "URL", "name": "url", "required": True},
-        {"type": "text", "label": "Port", "name": "port", "required": True},
-        {"type": "password", "label": "API Key", "name": "api_key", "required": True},
-        {"type": "text", "label": "Headers", "name": "headers", "required": False}
+        {"type": "text", "label": "Server URL", "name": "server_url", "required": True},
+        {"type": "integer", "label": "Port", "name": "port", "required": False},
+        {"type": "select", "label": "Authentication Type", "name": "authentication_type", 
+         "options": ["None", "API key in headers", "Basic Auth", "Bearer Token", "Digest Auth"], "required": True,
+         "click_mapping": {
+             "None": {"username": False, "password": False, "headers": False, "token": False},
+             "API key in headers": {"username": False, "password": False, "headers": True, "token": False},
+             "Basic Auth": {"username": True, "password": True, "headers": False, "token": False},
+             "Bearer Token": {"username": False, "password": True, "headers": False, "token": True},
+             "Digest Auth": {"username": True, "password": True, "headers": False, "token": False}
+         }
+        },
+        {"type": "text", "label": "Username", "name": "username", "required": False, "hidden": True},
+        {"type": "password", "label": "Password", "name": "password", "required": False, "hidden": True},
+        {"type": "text", "label": "Bearer Token", "name": "token", "required": False, "hidden": True},
+        {"type": "json", "label": "Headers", "name": "headers", "required": False, "hidden": True}
+        # actual username/password/header fields will be added dynamically based on the selected authentication type
     ],
 }
 
@@ -50,6 +63,10 @@ selected_connector = None
 selected_form_type = None
 selected_connection_index = None
 existing_connection_counter = 0
+selected_authentication_type = None
+server_url = None # for API form persistence
+port = None # for API form persistence
+form_field_keys = []
 
 def create_group(group_name, connectors, type, state):
     """Create a group for each connector."""
@@ -109,7 +126,7 @@ def create_gradio_interface():
                 # then load all available connectors
                 for group_name, group_connectors in connectors_data.items():
                     create_group(group_name, group_connectors, 'connectors', state)
-            elif layout_type == 'form':
+            elif layout_type in ['form','form_refreshed']:
                 with gr.Column():
                     gr.Markdown("## Form")
                     create_form(state)
@@ -118,17 +135,11 @@ def create_gradio_interface():
 def handle_submit(*args, **kwargs):
     # Example validation logic
     logger.info(f"Form submitted with args: {args}, kwargs: {kwargs}")
-    global selected_connector, selected_connection_index, selected_form_type, connections_data
-    if selected_form_type in FORM_TYPES:
-        # zip the form fields with their values
-        form_data = dict(zip(FORM_TYPES[selected_form_type].keys(), args))
-        logger.info(f"Form data: {form_data}")
-    elif selected_form_type=='custom':
-        form_fields = selected_connector.get("form_fields")
-        if form_fields:
-            form_data = dict(zip(form_fields.keys(), args))
-    else:
-        logger.error("Unknown form type")
+    global selected_connector, selected_connection_index, selected_form_type, connections_data, form_field_keys
+
+    # zip the form fields with their values
+    form_data = dict(zip(form_field_keys, args))
+    logger.info(f"Form data: {form_data}")
 
     if form_data:
         form_data["connector"] = selected_connector.get("name")
@@ -152,8 +163,9 @@ def event_handler(connector, connection_index):
     return 'form'
 
 def create_form(state):
-    global selected_connector, selected_connection_index, selected_form_type
-    if selected_form_type=='custom':
+    global selected_connector, selected_connection_index, selected_form_type, selected_authentication_type, form_field_keys, server_url, port
+    form_field_keys = []
+    if selected_form_type == 'custom':
         form_fields = selected_connector.get('form_fields')
     else:
         form_fields = FORM_TYPES.get(selected_form_type, {})
@@ -164,24 +176,56 @@ def create_form(state):
         existing_connection = connections_data['connections'][selected_connection_index]
 
     with gr.Column() as column:
-        
         inputs = []
         for field_info in form_fields:
             label = field_info["label"]
             name = field_info["name"]
             required = field_info["required"]
             field_type = field_info["type"]
+            hidden = field_info.get("hidden", False)
+
+            if hidden:
+                continue
+
+            form_field_keys.append(field_info["name"])
 
             if field_type == "text":
-                inputs.append(gr.Textbox(label=label, value=existing_connection.get(name, ""), interactive=True))
+                textbox = gr.Textbox(label=label, value=existing_connection.get(name, server_url), interactive=True)
+                if name == "server_url":
+                    textbox.input(lambda x: globals().__setitem__('server_url', x), inputs=[textbox], outputs=None)
+                inputs.append(textbox)
             elif field_type == "integer":
-                inputs.append(gr.Number(label=label, value=existing_connection.get(name, 0), interactive=True))
+                number = gr.Number(label=label, value=existing_connection.get(name, port), interactive=True)
+                if name == "port":
+                    number.change(lambda x: globals().__setitem__('port', x), inputs=[number], outputs=None)
+                inputs.append(number)
             elif field_type == "password":
                 inputs.append(gr.Textbox(label=label, value=existing_connection.get(name, ""), type="password", interactive=True))
             elif field_type == "json":
                 inputs.append(gr.Textbox(label=label, value=existing_connection.get(name, ""), lines=5, placeholder="Enter JSON here", interactive=True))
             elif field_type == "checkbox":
-                inputs.append(gr.Checkbox(label=label, value=existing_connection.get(name, False), interactive=True))
+                inputs.append(gr.Checkbox(label=label, value=existing_connection.get(name, ""), interactive=True))
+            elif field_type == "select":
+                options = field_info.get("options", [])
+                click_mapping = field_info.get("click_mapping", {})
+                dropdown = gr.Dropdown(label=label, choices=options, value=existing_connection.get(name, selected_authentication_type), interactive=True)
+
+                if click_mapping:
+                    def update_form(selected_option):
+                        global selected_authentication_type
+                        selected_authentication_type = selected_option
+                        for field in form_fields:
+                            if field["name"] in click_mapping.get(selected_option, []):
+                                field["hidden"] = not click_mapping[selected_option][field["name"]]
+                            else:
+                                if "hidden" in field.keys():
+                                    field["hidden"] = True
+                        # Re-render the form with the updated fields without returning a value
+                        return 'form_refreshed'
+
+                    dropdown.change(update_form, inputs=[dropdown], outputs=state)
+
+                inputs.append(dropdown)
 
         with gr.Column():
             gr.Button("Submit", variant="primary").click(handle_submit, inputs, state)
