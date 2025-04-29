@@ -1,5 +1,6 @@
 import os
 import copy
+import uuid
 
 import gradio as gr
 from benedict import benedict
@@ -126,7 +127,7 @@ def create_gradio_interface():
                 # then load all available connectors
                 for group_name, group_connectors in connectors_data.items():
                     create_group(group_name, group_connectors, 'connectors', state)
-            elif layout_type in ['form','form_refreshed']:
+            elif layout_type == 'form' or 'form_refreshed' in layout_type:
                 with gr.Column():
                     gr.Markdown("## Form")
                     create_form(state)
@@ -163,6 +164,7 @@ def event_handler(connector, connection_index):
     return 'form'
 
 def create_form(state):
+    logger.debug(f"state in form: {state.value}")
     global selected_connector, selected_connection_index, selected_form_type, selected_authentication_type, form_field_keys, server_url, port
     form_field_keys = []
     if selected_form_type == 'custom':
@@ -214,16 +216,20 @@ def create_form(state):
                     def update_form(selected_option):
                         global selected_authentication_type
                         selected_authentication_type = selected_option
-                        for field in form_fields:
-                            if field["name"] in click_mapping.get(selected_option, []):
-                                field["hidden"] = not click_mapping[selected_option][field["name"]]
-                            else:
-                                if "hidden" in field.keys():
-                                    field["hidden"] = True
-                        # Re-render the form with the updated fields without returning a value
-                        return 'form_refreshed'
+                        logger.debug(f"Selected authentication type: {selected_authentication_type}")
+                        if selected_authentication_type:
+                            for field in form_fields:
+                                if field["name"] in click_mapping.get(selected_option, []):
+                                    logger.debug(f"Updating field {field['name']} based on selected option {selected_option}")
+                                    field["hidden"] = not click_mapping[selected_option][field["name"]]
+                                else:
+                                    if "hidden" in field.keys():
+                                        field["hidden"] = True
+                            # Re-render the form with the updated fields without returning a value
+                            return f'form_refreshed_{selected_authentication_type}' # we append the authentication type so anytime the auth type changes it'll refresh
+                        return 'form'
 
-                    dropdown.change(update_form, inputs=[dropdown], outputs=state)
+                    dropdown.input(update_form, inputs=[dropdown], outputs=state)
 
                 inputs.append(dropdown)
 
