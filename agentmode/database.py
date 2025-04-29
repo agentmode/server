@@ -166,6 +166,59 @@ class DatabaseConnection:
 					self.connection.close()
 				await asyncio.get_event_loop().run_in_executor(self.threadpool, sync_disconnect)
 
+	async def generate_mcp_resources_and_tools(self, connection_name, mcp, connection_name_counter, connection_mapping):
+		"""
+		Generate MCP resources and tools based on the database connection.
+		"""
+		try:
+			# Check if the connection name already exists in the mapping
+			tool_name = f"database_query_{connection_name}"
+			# Increment the counter for the connection name
+			connection_name_counter[tool_name] += 1
+			if connection_name_counter[tool_name] > 1:
+				tool_name = f"{tool_name}_{connection_name_counter[tool_name]}"
+			
+			connection_mapping[tool_name] = self
+			tool_name = f"{tool_name}_{connection_name_counter[tool_name]}"
+		
+			connection_mapping[tool_name] = self
+
+			# Define a function dynamically using a closure
+			def create_dynamic_tool(fn_name):
+				async def dynamic_tool(query: str) -> str:
+					"""Run a database query on the connection."""
+					db = connection_mapping.get(fn_name)
+					if not db:
+						logger.error(f"No database connection found for tool: {fn_name}")
+						return None
+					try:
+						logger.debug(f"Executing query: {query} in dynamic tool")
+						success_flag, result = await db.query(query)
+						if success_flag:
+							# convert the result pandas dataframe to a list of dictionaries
+							result = result.to_dict('records')
+							logger.debug(f"Query result: {result}")
+							# we don't need to convert to JSON string here, as the mcp server will handle it for us
+							return result
+						else:
+							logger.error(f"Query execution failed for {fn_name}")
+							return 'error'
+					except Exception as e:
+						logger.error(f"Error executing query: {e}")
+						return 'error' + str(e)
+				return dynamic_tool
+
+			# Create the dynamic tool function with the tool name
+			tool_function = create_dynamic_tool(tool_name)
+
+			# Register the function as an MCP tool
+			tool_function.__name__ = tool_name
+			tool_function.__doc__ = f"Run a query on the {connection_name} database."
+			mcp.tool()(tool_function)
+		except Exception as e:
+			logger.error(f"Error generating MCP resources and tools: {e}")
+			return None
+
 @dataclass
 class PostgreSQLConnection(DatabaseConnection):
 	platform = 'PostgreSQL'

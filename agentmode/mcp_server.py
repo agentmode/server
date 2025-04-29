@@ -13,6 +13,7 @@ from mcp.server.fastmcp import FastMCP, Context
 
 from agentmode.logs import logger
 from agentmode.database import DatabaseConnection
+from agentmode.api.api_connection import APIConnection
 
 CONNECTIONS_FILE = "connections.toml"
 # to debug: uv run mcp dev mcp_server.py
@@ -30,6 +31,56 @@ class AppContext:
 # Maintain a mapping of function names to their database connections
 connection_mapping = {}
 
+async def setup_database_connection(connection_name: str, connection: dict, mcp: FastMCP, connection_name_counter: defaultdict) -> None:
+    """
+    Establish a database connection and store it in the connection mapping.
+    """
+    try:
+        db = DatabaseConnection.create(connection_name, connection)
+        if not await db.connect():
+            logger.error(f"Failed to connect to {connection_name}")
+            return None
+        else:
+            logger.info(f"Connected to {connection_name}")
+
+        await db.generate_mcp_resources_and_tools(connection_name, mcp, connection_name_counter, connection_mapping)
+    except Exception as e:
+        logger.error(f"Error setting up database connection: {e}")
+        return None
+    
+async def setup_api_connection(connection_name: str, connection: dict, mcp: FastMCP, connection_name_counter: defaultdict) -> None:
+    """
+    Establish an API connection and store it in the connection mapping.
+    """
+    try:
+        api_connection = type(f"{connection_name}APIConnection", (APIConnection,), {'name': connection_name})() # define the APIConnection class dynamically
+        
+        # get the API information from api/connectors/{connection_name}.toml or .json
+        api_info = benedict.from_toml(f"api/connectors/{connection_name}.json")
+        if not api_info:
+            logger.error(f"Failed to load API information for {connection_name}")
+            return None
+        
+        # Create the APIConnection instance
+        api_connection = APIConnection.create(
+            connection_name, 
+            mcp_resources=api_info.get("mcp_resources", []),
+            mcp_tools=api_info.get("mcp_tools", []),
+            auth_type=connection.get("authentication_type"), # comes from the form
+            credentials={
+                "username": connection.get("username"),
+                "password": connection.get("password"),
+                "token": connection.get("token"),
+                "headers": connection.get("headers"),
+            }, 
+            server_url=connection.get("server_url"), # comes from the form
+        )
+
+        api_connection.generate_mcp_resources_and_tools(mcp, connection_name_counter)
+    except Exception as e:
+        logger.error(f"Error setting up API connection: {e}")
+        return None
+
 @asynccontextmanager
 async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
     """Manage application lifecycle with type-safe context"""
@@ -37,63 +88,19 @@ async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
     if os.path.exists(CONNECTIONS_FILE):
         connections = benedict.from_toml(CONNECTIONS_FILE)
     if connections:
-        connections = connections.get("connections")
+        connections = connections.get("connections", [])
 
-    # Dynamically create a tool for each connection
-    if connections:
-        connection_name_counter = defaultdict(int) # each connection name may be suffixed with a counter to ensure uniqueness, in case of duplicates
-        for connection in connections:
-            logger.info(f"Creating tool for connection: {connection['connector']}")
-            connection_name = connection.pop('connector', None)
+    # Dynamically create tools/resources for each connection
+    connection_name_counter = defaultdict(int) # each connection name may be suffixed with a counter to ensure uniqueness, in case of duplicates
+    for connection in connections:
+        logger.info(f"Creating tool for connection: {connection['connector']}")
+        connection_name = connection.pop('connector', None)
+        connector_type = connection.pop('connector_type', None)
 
-            # Establish the database connection and store it in the mapping
-            db = DatabaseConnection.create(connection_name, connection)
-            if not await db.connect():
-                logger.error(f"Failed to connect to {connection_name}")
-                continue
-            else:
-                logger.info(f"Connected to {connection_name}")
-            # Check if the connection name already exists in the mapping
-            tool_name = f"database_query_{connection_name}"
-            # Increment the counter for the connection name
-            connection_name_counter[tool_name] += 1
-            if connection_name_counter[tool_name] > 1:
-                tool_name = f"{tool_name}_{connection_name_counter[tool_name]}"
-            
-            connection_mapping[tool_name] = db
-
-            # Define a function dynamically using a closure
-            def create_dynamic_tool(fn_name):
-                async def dynamic_tool(query: str) -> str:
-                    """Run a database query on the connection."""
-                    db = connection_mapping.get(fn_name)
-                    if not db:
-                        logger.error(f"No database connection found for tool: {fn_name}")
-                        return None
-                    try:
-                        logger.debug(f"Executing query: {query} in dynamic tool")
-                        success_flag, result = await db.query(query)
-                        if success_flag:
-                            # convert the result pandas dataframe to a list of dictionaries
-                            result = result.to_dict('records')
-                            logger.debug(f"Query result: {result}")
-                            # we don't need to convert to JSON string here, as the mcp server will handle it for us
-                            return result
-                        else:
-                            logger.error(f"Query execution failed for {fn_name}")
-                            return 'error'
-                    except Exception as e:
-                        logger.error(f"Error executing query: {e}")
-                        return 'error' + str(e)
-                return dynamic_tool
-
-            # Create the dynamic tool function with the tool name
-            tool_function = create_dynamic_tool(tool_name)
-
-            # Register the function as an MCP tool
-            tool_function.__name__ = tool_name
-            tool_function.__doc__ = f"Run a query on the {connection_name} database."
-            mcp.tool()(tool_function)
+        if connector_type=='database': # Establish the database connection and store it in the mapping
+            await setup_database_connection(connection_name, connection, mcp, connection_name_counter)
+        elif connector_type=='api':
+            await setup_api_connection(connection_name, connection, mcp, connection_name_counter)
 
     try:
         yield AppContext(db=None)

@@ -100,7 +100,7 @@ class APIConnection:
 
         return dynamic_tool_or_resource
     
-    def generate_mcp_resources_and_tools(self, mcp):
+    def generate_mcp_resources_and_tools(self, mcp, connection_name_counter):
         """
         Generate MCP resources and tools based on the API connection.
         This method dynamically iterates over types to avoid code repetition.
@@ -109,8 +109,15 @@ class APIConnection:
         for type_ in types:
             items = self.mcp_resources if type_ == 'resource' else self.mcp_tools
             for item in items:
+                # Check if the name already exists in the mapping (ie we may have multiple connections to the same API, ie one for prod & one for staging)
+                name = f"{self.name}-{item.get('operationId')}"
+                # Increment the counter for the connection name
+                connection_name_counter[name] += 1
+                if connection_name_counter[name] > 1:
+                    name = f"{name}_{connection_name_counter[name]}"
+
                 # Create a dynamic function
-                fn = self.create_dynamic_tool_or_resource(f"{self.name}-{item.get('operationId')}", item.get('parameters', []), item.get('request_body_parameters', {}))
+                fn = self.create_dynamic_tool_or_resource(name, item.get('parameters', []), item.get('request_body_parameters', {}))
                 fn.__name__ = item.get('operationId')
                 fn.__doc__ = self.generate_docstring_for_function(
                     item.get('operationId'),
@@ -166,7 +173,7 @@ Args:
             dict: A dictionary of headers to be used for authentication.
         """
         try:
-            if auth_type == 'basic':
+            if auth_type == 'Basic Auth':
                 username = credentials.get('username')
                 password = credentials.get('password')
                 if not username or not password:
@@ -174,21 +181,17 @@ Args:
                 auth_header = httpx.BasicAuth(username, password)
                 return {"Authorization": auth_header}
 
-            elif auth_type == 'bearer':
+            elif auth_type == 'Bearer Token':
                 # typically used for OAuth2, so will be short-lived unless refreshed
                 token = credentials.get('token')
                 if not token:
                     raise ValueError("Missing token for Bearer Auth")
                 return {"Authorization": f"Bearer {token}"}
 
-            elif auth_type == 'api_key':
-                api_key = credentials.get('api_key')
-                header_name = credentials.get('header_name', 'Authorization')
-                if not api_key:
-                    raise ValueError("Missing API key for API Key Auth")
-                return {header_name: api_key}
+            elif auth_type == 'API key in headers':
+                return credentials.get('headers')
 
-            elif auth_type == 'digest':
+            elif auth_type == 'Digest Auth':
                 username = credentials.get('username')
                 password = credentials.get('password')
                 if not username or not password:

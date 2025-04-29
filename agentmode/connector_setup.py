@@ -134,7 +134,6 @@ def create_gradio_interface():
     return demo
 
 def handle_submit(*args, **kwargs):
-    # Example validation logic
     logger.info(f"Form submitted with args: {args}, kwargs: {kwargs}")
     global selected_connector, selected_connection_index, selected_form_type, connections_data, form_field_keys
 
@@ -144,6 +143,7 @@ def handle_submit(*args, **kwargs):
 
     if form_data:
         form_data["connector"] = selected_connector.get("name")
+        form_data["connection_type"] = selected_connector.get("connection_type")
         # update the connections_data with the new connection
         # and persist it to the TOML file
         if selected_connection_index is not None:
