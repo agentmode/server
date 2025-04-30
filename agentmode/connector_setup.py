@@ -37,7 +37,7 @@ FORM_TYPES = {
         {"type": "text", "label": "Username", "name": "username", "required": False, "hidden": True},
         {"type": "password", "label": "Password", "name": "password", "required": False, "hidden": True},
         {"type": "text", "label": "Bearer Token", "name": "token", "required": False, "hidden": True},
-        {"type": "json", "label": "Headers", "name": "headers", "required": False, "hidden": True}
+        {"type": "json", "label": "Headers (as JSON dictionary)", "name": "headers", "required": False, "hidden": True}
         # actual username/password/header fields will be added dynamically based on the selected authentication type
     ],
 }
@@ -113,7 +113,7 @@ def create_card(input, type, state):
     
 def create_gradio_interface():
     """Create the Gradio interface."""
-    with gr.Blocks(title='agentmode', css_paths=['static/custom.css']) as demo:
+    with gr.Blocks(title='agentmode', css_paths=['resources/css/custom.css']) as demo:
         gr.Markdown("# Connector Management")
 
         state = gr.State('connectors')
@@ -204,7 +204,10 @@ def create_form(state):
             elif field_type == "password":
                 inputs.append(gr.Textbox(label=label, value=existing_connection.get(name, ""), type="password", interactive=True))
             elif field_type == "json":
-                inputs.append(gr.Textbox(label=label, value=existing_connection.get(name, ""), lines=5, placeholder="Enter JSON here", interactive=True))
+                json_field = gr.Textbox(label=label, value=existing_connection.get(name, ""), lines=5, placeholder="Enter JSON here", interactive=True)
+                if name == "headers":
+                    json_field.placeholder = "{\"x-api-key\": \"YOUR API KEY HERE\"}"
+                inputs.append(json_field)
             elif field_type == "checkbox":
                 inputs.append(gr.Checkbox(label=label, value=existing_connection.get(name, ""), interactive=True))
             elif field_type == "select":

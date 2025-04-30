@@ -7,4 +7,3 @@ build/
 **/.DS_Store
 **/*.log
 **/connections.toml
-tests/*

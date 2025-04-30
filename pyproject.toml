@@ -6,10 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 keywords = ["mcp", "ai"]
 dependencies = [
-    "asyncpg>=0.30.0",
     "click>=8.1.8",
     "gradio>=5.25.2",
-    "gradio-toggle>=2.0.2",
     "greenlet>=3.2.0",
     "httpx>=0.28.1",
     "mcp[cli]>=1.6.0",
@@ -29,9 +27,29 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "litellm>=1.67.4.post1",
     "pytest>=8.3.5",
+    "pytest-asyncio>=0.26.0",
     "ruff>=0.11.6",
 ]
 
 [project.urls]
 "Homepage" = "https://www.agentmode.app"
+
+[project.optional-dependencies]
+database = [
+    "aiomysql>=0.2.0",
+    "aioodbc>=0.5.0",
+    "aiotrino>=0.3.0",
+    "asyncpg>=0.30.0",
+    "clickhouse-sqlalchemy>=0.3.2",
+    "oracledb>=3.1.0",
+    "presto-python-client>=0.8.4",
+    "pyathena[sqlalchemy]>=3.13.0",
+    "pyhive>=0.7.0",
+    "snowflake-sqlalchemy>=1.7.3",
+    "sqlalchemy-bigquery>=1.13.0",
+    "sqlalchemy-cockroachdb>=2.0.2",
+    "sqlalchemy-hana>=3.0.2",
+    "teradatasqlalchemy>=20.0.0.4",
+]

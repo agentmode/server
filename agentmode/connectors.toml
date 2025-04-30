@@ -1,42 +1,217 @@
-[[databases]]
+[[Databases]]
 
 name = "MySQL"
+label = "MySQL / MariaDB / Vitess"
 logo = "resources/images/a.svg"
 connection_type = "database"
 authentication_form_type = "database"
+requires_python_package = "aiomysql"
 
-[[databases]]
+[[Databases]]
 name = "PostgreSQL"
 logo = "resources/images/a.svg"
 connection_type = "database"
 authentication_form_type = "database"
+requires_python_package = "asyncpg"
 
-[[databases]]
-name = "MariaDB"
+[[Databases]]
+name = "SQL Server"
 logo = "resources/images/a.svg"
 connection_type = "database"
 authentication_form_type = "database"
+requires_python_package = "aioodbc"
 
-[[databases]]
+[[Databases]]
 name = "CockroachDB"
 logo = "resources/images/a.svg"
 connection_type = "database"
 authentication_form_type = "database"
+requires_python_package = "sqlalchemy-cockroachdb"
 
-[[databases]]
+[[Databases]]
 name = "Oracle"
 logo = "resources/images/a.svg"
 connection_type = "database"
-authentication_form_type = "database"
+authentication_form_type = "custom"
+requires_python_package = "oracledb"
+form_fields = [
+{type = "text", label = "Service Name", name = "service_name", required = true}
+]
 
-[[databases]]
+[[Databases]]
 name = "TimescaleDB"
 logo = "resources/images/a.svg"
 connection_type = "database"
 authentication_form_type = "database"
 
-[[databases]]
-name = "SAP"
+[[Databases]]
+name = "SAP HANA"
 logo = "resources/images/a.svg"
 connection_type = "database"
 authentication_form_type = "database"
+requires_python_package = "sqlalchemy-hana"
+
+[[Databases]]
+name = "Clickhouse"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "database"
+requires_python_package = "clickhouse-sqlalchemy"
+
+[[Databases]]
+name = "CockroachDB"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "database"
+
+[["Data Warehouses"]]
+name = "Presto"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "database"
+requires_python_package = "presto-python-client"
+
+[["Data Warehouses"]]
+name = "Hive"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "database"
+requires_python_package = "pyhive"
+
+[["Data Warehouses"]]
+name = "Trino"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "database"
+requires_python_package = "aiotrino"
+
+[["Data Warehouses"]]
+name = "GCP BigQuery"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "custom"
+requires_python_package = "sqlalchemy-bigquery"
+form_fields = [
+    {type = "text", label = "Project Name", name = "project_name", required = true},
+    {type = "text", label = "Path to your JSON credentials file", name = "credentials_path", required = true}
+]
+
+[["Data Warehouses"]]
+name = "AWS Redshift"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "database"
+
+[["Data Warehouses"]]
+name = "Snowflake"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "custom"
+requires_python_package = "snowflake-sqlalchemy"
+form_fields = [
+    { type = "text", label = "Account", name = "account", required = true },
+    { type = "text", label = "User", name = "user", required = true },
+    { type = "text", label = "Password", name = "password", required = true },
+    { type = "text", label = "Database", name = "database", required = false },
+    { type = "text", label = "Schema", name = "schema", required = false },
+    { type = "text", label = "Warehouse", name = "warehouse", required = false },
+    { type = "text", label = "Role", name = "role", required = false },
+    { type = "text", label = "Timezone", name = "timezone", required = false }
+]
+
+[["Data Warehouses"]]
+name = "Databricks"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "custom"
+form_fields = [
+    {type = "text", label = "access token", name = "access_token", required = true},
+    {type = "text", label = "host", name = "host", required = true},
+    {type = "text", label = "http path", name = "http_path", required = true},
+    {type = "text", label = "catalog", name = "catalog", required = true},
+    {type = "text", label = "schema", name = "schema", required = true}
+]
+
+[["Data Warehouses"]]
+name = "Teradata"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "database"
+requires_python_package = "teradatasqlalchemy"
+
+[["Data Warehouses"]]
+name = "AWS Athena"
+logo = "resources/images/a.svg"
+connection_type = "database"
+authentication_form_type = "custom"
+requires_python_package = "pyathena[sqlalchemy]"
+form_fields = [
+    { type = "text", label = "AWS access key ID", name = "aws_access_key_id", required = true },
+    { type = "text", label = "AWS secret access key", name = "aws_secret_access_key", required = true },
+    { type = "text", label = "region name", name = "region_name", required = true },
+    { type = "text", label = "schema name", name = "schema_name", required = true },
+    { type = "text", label = "S3 staging directory", name = "s3_staging_dir", required = true }
+]
+
+[["Data Pipelines"]]
+name = "Airflow"
+logo = "resources/images/a.svg"
+connection_type = "api"
+authentication_form_type = "api"
+openapi_spec_url = "https://airflow.apache.org/docs/apache-airflow/stable/_specs/v1-rest-api-generated.yaml"
+
+[["Data Pipelines"]]
+name = "Prefect"
+logo = "resources/images/a.svg"
+connection_type = "api"
+authentication_form_type = "api"
+openapi_spec_url = "https://api.prefect.cloud/api/openapi.json"
+
+[["Source Control"]]
+name = "Github"
+logo = "resources/images/a.svg"
+connection_type = "api"
+authentication_form_type = "api"
+openapi_spec_url = "https://raw.githubusercontent.com/github/rest-api-description/refs/heads/main/descriptions/api.github.com/api.github.com.json"
+
+[["Source Control"]]
+name = "Gitlab"
+logo = "resources/images/a.svg"
+connection_type = "api"
+authentication_form_type = "api"
+openapi_spec_url = "https://gitlab.com/gitlab-org/gitlab/-/raw/master/doc/api/openapi/openapi_v2.yaml"
+
+[["Source Control"]]
+name = "Bitbucket"
+logo = "resources/images/a.svg"
+connection_type = "api"
+authentication_form_type = "api"
+openapi_spec_url = "https://dac-static.atlassian.com/cloud/bitbucket/swagger.v3.json?_v=2.300.101-0.1323.0"
+
+[[Logs]]
+name = "Elasticsearch"
+logo = "resources/images/a.svg"
+connection_type = "api"
+authentication_form_type = "api"
+openapi_spec_url = "https://api.elastic-cloud.com/api/v1/api-docs-user/swagger.json"
+
+[[Logs]]
+name = "Sumo Logic"
+logo = "resources/images/a.svg"
+connection_type = "api"
+authentication_form_type = "api"
+openapi_spec_url = "https://api.sumologic.com/docs/sumologic-api.yaml"
+
+#[[Logs]]
+#name = "Grafana"
+#logo = "resources/images/a.svg"
+#connection_type = "api"
+#authentication_form_type = "api"
+#openapi_spec_url = "https://raw.githubusercontent.com/grafana/grafana/main/public/openapi3.json"
+
+[["Package Repositories"]]
+name = "Docker Hub"
+logo = "resources/images/a.svg"
+connection_type = "api"
+authentication_form_type = "api"
+openapi_spec_url = "https://docs.docker.com/reference/api/hub/latest.yaml"

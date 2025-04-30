@@ -1,0 +1,2703 @@
+{
+    "resources": [
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/access-tokens",
+            "method": "get",
+            "parameters": [
+                {
+                    "in": "query",
+                    "name": "page",
+                    "schema": {
+                        "type": "number",
+                        "default": 1
+                    }
+                },
+                {
+                    "in": "query",
+                    "name": "page_size",
+                    "schema": {
+                        "type": "number",
+                        "default": 10
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "count": {
+                                        "type": "number",
+                                        "example": 1
+                                    },
+                                    "next": {
+                                        "type": "string",
+                                        "example": null
+                                    },
+                                    "previous": {
+                                        "type": "string",
+                                        "example": null
+                                    },
+                                    "active_count": {
+                                        "type": "number",
+                                        "example": 1
+                                    },
+                                    "results": {
+                                        "type": "array",
+                                        "items": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/accessToken"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "token": {
+                                                            "type": "string",
+                                                            "example": ""
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "$ref": "#/components/responses/BadRequest"
+                },
+                "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a paginated list of personal access tokens.",
+            "tags": [
+                "access-tokens"
+            ],
+            "operationId": "get__v2_access-tokens"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/access-tokens/{uuid}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/accessToken"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "token": {
+                                                "type": "string",
+                                                "example": ""
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                },
+                "404": {
+                    "$ref": "#/components/responses/NotFound"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a personal access token by UUID.",
+            "tags": [
+                "access-tokens"
+            ],
+            "operationId": "get__v2_access-tokens_uuid"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/auditlogs/{account}/actions",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "account",
+                    "description": "Namespace to query audit log actions for.",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "A successful response.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "actions": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "$ref": "#/components/schemas/AuditLogActions"
+                                        },
+                                        "description": "Map of audit log actions."
+                                    }
+                                },
+                                "description": "GetAuditActions response."
+                            },
+                            "examples": {
+                                "response": {
+                                    "value": {
+                                        "actions": {
+                                            "org": {
+                                                "actions": [
+                                                    {
+                                                        "name": "team.create",
+                                                        "description": "contains team create events",
+                                                        "label": "Team Created"
+                                                    },
+                                                    {
+                                                        "name": "team.delete",
+                                                        "description": "contains team delete events",
+                                                        "label": "Team Deleted"
+                                                    },
+                                                    {
+                                                        "name": "team.member.add",
+                                                        "description": "contains team member add events",
+                                                        "label": "Team Member Added"
+                                                    },
+                                                    {
+                                                        "name": "team.member.remove",
+                                                        "description": "contains team member remove events",
+                                                        "label": "Team Member Removed"
+                                                    },
+                                                    {
+                                                        "name": "team.member.invite",
+                                                        "description": "contains team member invite events",
+                                                        "label": "Team Member Invited"
+                                                    },
+                                                    {
+                                                        "name": "member.removed",
+                                                        "description": "contains org member remove events",
+                                                        "label": "Organization Member Removed"
+                                                    },
+                                                    {
+                                                        "name": "create",
+                                                        "description": "contains organization create events",
+                                                        "label": "Organization Created"
+                                                    }
+                                                ],
+                                                "label": "Organization"
+                                            },
+                                            "repo": {
+                                                "actions": [
+                                                    {
+                                                        "name": "create",
+                                                        "description": "contains repository create events",
+                                                        "label": "Repository Created"
+                                                    },
+                                                    {
+                                                        "name": "delete",
+                                                        "description": "contains repository delete events",
+                                                        "label": "Repository Deleted"
+                                                    },
+                                                    {
+                                                        "name": "change_privacy",
+                                                        "description": "contains repository privacy change events",
+                                                        "label": "Privacy Changed"
+                                                    },
+                                                    {
+                                                        "name": "tag.push",
+                                                        "description": "contains image tag push events",
+                                                        "label": "Tag Pushed"
+                                                    },
+                                                    {
+                                                        "name": "tag.delete",
+                                                        "description": "contains image tag delete events",
+                                                        "label": "Tag Deleted"
+                                                    }
+                                                ],
+                                                "label": "Repository"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "429": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {},
+                            "examples": {
+                                "response": {
+                                    "value": {
+                                        "detail": "Rate limit exceeded",
+                                        "error": false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "default": {
+                    "description": "An unexpected error response.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "code": {
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    },
+                                    "details": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/protobufAny"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "request_body_parameters": {},
+            "description": "List audit log actions for a namespace to be used as a filter for querying audit log events.\n\n<span class=\"oat\"></span>\n",
+            "tags": [
+                "audit-logs"
+            ],
+            "operationId": "AuditLogs_ListAuditActions"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/auditlogs/{account}",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "account",
+                    "description": "Namespace to query audit logs for.",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "action",
+                    "description": "action name one of [\"repo.tag.push\", ...]. Optional parameter to filter specific audit log actions.\n",
+                    "in": "query",
+                    "required": false,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "name",
+                    "description": "name. Optional parameter to filter audit log events to a specific name. For repository events, this is the name of the repository. For organization events, this is the name of the organization. For team member events, this is the username of the team member.\n",
+                    "in": "query",
+                    "required": false,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "actor",
+                    "description": "actor name. Optional parameter to filter audit log events to the specific user who triggered the event.\n",
+                    "in": "query",
+                    "required": false,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "from",
+                    "description": "Start of the time window you wish to query audit events for.",
+                    "in": "query",
+                    "required": false,
+                    "schema": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                {
+                    "name": "to",
+                    "description": "End of the time window you wish to query audit events for.",
+                    "in": "query",
+                    "required": false,
+                    "schema": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                {
+                    "name": "page",
+                    "description": "page - specify page number. Page number to get.",
+                    "in": "query",
+                    "required": false,
+                    "schema": {
+                        "type": "integer",
+                        "format": "int32",
+                        "default": 1
+                    }
+                },
+                {
+                    "name": "page_size",
+                    "description": "page_size - specify page size. Number of events to return per page.",
+                    "in": "query",
+                    "required": false,
+                    "schema": {
+                        "type": "integer",
+                        "format": "int32",
+                        "default": 25
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "A successful response.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "logs": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/AuditLog"
+                                        },
+                                        "description": "List of audit log events."
+                                    }
+                                },
+                                "description": "GetAuditLogs response."
+                            },
+                            "examples": {
+                                "response": {
+                                    "value": {
+                                        "logs": [
+                                            {
+                                                "account": "docker",
+                                                "action": "repo.tag.push",
+                                                "name": "docker/example",
+                                                "actor": "docker",
+                                                "data": {
+                                                    "digest": "sha256:c1ae9c435032a276f80220c7d9b40f76266bbe79243d34f9cda30b76fe114dfa",
+                                                    "tag": "latest"
+                                                },
+                                                "timestamp": "2021-02-19T01:34:35Z",
+                                                "action_description": "pushed the tag latest with the digest sha256:c1ae9c435032a to the repository docker/example\n"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "429": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {},
+                            "examples": {
+                                "response": {
+                                    "value": {
+                                        "detail": "Rate limit exceeded",
+                                        "error": false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "default": {
+                    "description": "An unexpected error response.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "code": {
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    },
+                                    "details": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/protobufAny"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "request_body_parameters": {},
+            "description": "List audit log events for a given namespace.\n\n<span class=\"oat\"></span>\n",
+            "tags": [
+                "audit-logs"
+            ],
+            "operationId": "AuditLogs_ListAuditLogs"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{name}/settings",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "restricted_images": {
+                                        "$ref": "#/components/schemas/restricted_images"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/Forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/NotFound"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns organization settings by name.\n",
+            "tags": [
+                "org-settings"
+            ],
+            "operationId": "get__v2_orgs_name_settings"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{name}/access-tokens",
+            "method": "get",
+            "parameters": [
+                {
+                    "in": "query",
+                    "name": "page",
+                    "schema": {
+                        "type": "number",
+                        "default": 1
+                    }
+                },
+                {
+                    "in": "query",
+                    "name": "page_size",
+                    "schema": {
+                        "type": "number",
+                        "default": 10
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "total": {
+                                        "type": "number",
+                                        "example": 10
+                                    },
+                                    "next": {
+                                        "type": "string",
+                                        "example": "https://hub.docker.com/v2/orgs/docker/access-tokens?page=2&page_size=10"
+                                    },
+                                    "previous": {
+                                        "type": "string",
+                                        "example": "https://hub.docker.com/v2/orgs/docker/access-tokens?page=1&page_size=10"
+                                    },
+                                    "results": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/orgAccessToken"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/Forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/NotFound"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "List access tokens for an organization.\n",
+            "tags": [
+                "org-access-tokens"
+            ],
+            "operationId": "get__v2_orgs_name_access-tokens"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/access-tokens/{access_token_id}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/orgAccessToken"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "resources": {
+                                                "type": "array",
+                                                "description": "Resources this token has access to",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/orgAccessTokenResource"
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/Forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/NotFound"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Get details of a specific access token for an organization.\n",
+            "tags": [
+                "org-access-tokens"
+            ],
+            "operationId": "get__v2_orgs_org_name_access-tokens_access_token_id"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/namespaces/{namespace}/repositories/{repository}/tags",
+            "method": "get",
+            "parameters": [
+                {
+                    "in": "query",
+                    "name": "page",
+                    "required": false,
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "description": "Page number to get. Defaults to 1."
+                },
+                {
+                    "in": "query",
+                    "name": "page_size",
+                    "required": false,
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "description": "Number of items to get per page. Defaults to 10. Max of 100."
+                }
+            ],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/list_tags"
+                },
+                "403": {
+                    "$ref": "#/components/responses/Forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/NotFound"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "",
+            "tags": [
+                "repositories"
+            ],
+            "operationId": "get__v2_namespaces_namespace_repositories_repository_tags"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/namespaces/{namespace}/repositories/{repository}/tags",
+            "method": "head",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "Repository contains tags"
+                },
+                "403": {
+                    "$ref": "#/components/responses/Forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/NotFound"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "",
+            "tags": [
+                "repositories"
+            ],
+            "operationId": "head__v2_namespaces_namespace_repositories_repository_tags"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/namespaces/{namespace}/repositories/{repository}/tags/{tag}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/get_tag"
+                },
+                "403": {
+                    "$ref": "#/components/responses/Forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/NotFound"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "",
+            "tags": [
+                "repositories"
+            ],
+            "operationId": "get__v2_namespaces_namespace_repositories_repository_tags_tag"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/namespaces/{namespace}/repositories/{repository}/tags/{tag}",
+            "method": "head",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "Repository tag exists"
+                },
+                "403": {
+                    "$ref": "#/components/responses/Forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/NotFound"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "",
+            "tags": [
+                "repositories"
+            ],
+            "operationId": "head__v2_namespaces_namespace_repositories_repository_tags_tag"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/members",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "List of members",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/org_member_paginated"
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "$ref": "#/components/responses/bad_request"
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/not_found"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of members for an organization.\n\n_The following fields are only visible to orgs with insights enabled._\n\n- `last_logged_in_at`\n- `last_seen_at`\n- `last_desktop_version`\n\nTo make visible, please see [View Insights for organization users](https://docs.docker.com/admin/organization/insights/#view-insights-for-organization-users).\n\n<span class=\"oat\"></span>\n",
+            "tags": [
+                "orgs"
+            ],
+            "operationId": "get__v2_orgs_org_name_members"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/members/export",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "Exported members",
+                    "content": {
+                        "text/csv": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "Name",
+                                        "Username",
+                                        "Email",
+                                        "Type",
+                                        "Role",
+                                        "Date Joined"
+                                    ],
+                                    "properties": {
+                                        "Name": {
+                                            "type": "string",
+                                            "description": "First and last name of the member"
+                                        },
+                                        "Username": {
+                                            "type": "string",
+                                            "description": "Username of the member"
+                                        },
+                                        "Email": {
+                                            "type": "string",
+                                            "description": "Email address of the member"
+                                        },
+                                        "Type": {
+                                            "type": "string",
+                                            "description": "Type of the member",
+                                            "enum": [
+                                                "Invitee",
+                                                "User"
+                                            ]
+                                        },
+                                        "Permission": {
+                                            "type": "string",
+                                            "description": "Permission of the member",
+                                            "enum": [
+                                                "Owner",
+                                                "Member"
+                                            ]
+                                        },
+                                        "Teams": {
+                                            "type": "string",
+                                            "description": "Comma-separated list of teams the member is part of",
+                                            "example": "team-1, team-2"
+                                        },
+                                        "Date Joined": {
+                                            "type": "string",
+                                            "description": "Date the member joined the organization",
+                                            "example": "2020-01-01 15:00:51.193355 +0000 UTC"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "headers": {
+                        "Content-Disposition": {
+                            "schema": {
+                                "type": "string"
+                            },
+                            "example": "attachment;filename=\"{org_name}-members-{timestamp}.csv\""
+                        }
+                    }
+                },
+                "400": {
+                    "$ref": "#/components/responses/bad_request"
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/not_found"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Export members of an organization as a CSV\n\n<span class=\"oat\"></span>\n",
+            "tags": [
+                "orgs"
+            ],
+            "operationId": "get__v2_orgs_org_name_members_export"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/invites",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/invite"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/not_found"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Return all pending invites for a given org, only team owners can call this endpoint\n\n<span class=\"oat\"></span>\n",
+            "tags": [
+                "invites"
+            ],
+            "operationId": "get__v2_orgs_org_name_invites"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/groups",
+            "method": "get",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/page"
+                },
+                {
+                    "$ref": "#/components/parameters/page_size"
+                },
+                {
+                    "in": "query",
+                    "name": "username",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "description": "Get groups for the specified username in the organization."
+                },
+                {
+                    "in": "query",
+                    "name": "search",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "description": "Get groups for the specified group in the organization."
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "count": {
+                                        "type": "number",
+                                        "example": 1
+                                    },
+                                    "next": {
+                                        "type": "string",
+                                        "example": null
+                                    },
+                                    "previous": {
+                                        "type": "string",
+                                        "example": null
+                                    },
+                                    "results": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/org_group"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/not_found"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "<span class=\"oat\"></span>\n",
+            "tags": [
+                "groups"
+            ],
+            "operationId": "get__v2_orgs_org_name_groups"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/groups/{group_name}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "example": 10,
+                                        "description": "Group ID"
+                                    },
+                                    "uuid": {
+                                        "type": "string",
+                                        "description": "UUID for the group"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "mygroup",
+                                        "description": "Name of the group"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Groups description",
+                                        "description": "Description of the group"
+                                    },
+                                    "member_count": {
+                                        "type": "number",
+                                        "example": 10,
+                                        "description": "Member count of the group"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/not_found"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "<span class=\"oat\"></span>\n",
+            "tags": [
+                "groups"
+            ],
+            "operationId": "get__v2_orgs_org_name_groups_group_name"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/groups/{group_name}/members",
+            "method": "get",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/org_name"
+                },
+                {
+                    "$ref": "#/components/parameters/group_name"
+                },
+                {
+                    "$ref": "#/components/parameters/page"
+                },
+                {
+                    "$ref": "#/components/parameters/page_size"
+                },
+                {
+                    "in": "query",
+                    "name": "search",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "description": "Search members by username, full_name or email."
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "count": {
+                                        "type": "number",
+                                        "example": 1
+                                    },
+                                    "next": {
+                                        "type": "string",
+                                        "example": null
+                                    },
+                                    "previous": {
+                                        "type": "string",
+                                        "example": null
+                                    },
+                                    "results": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/group_member"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/not_found"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "List the members (users) that are in a group.\nIf user is owner of the org or has otherwise elevated permissions, they can search by email and the result will also contain emails.\n\n<span class=\"oat\"></span>\n",
+            "tags": [
+                "groups"
+            ],
+            "operationId": "get__v2_orgs_org_name_groups_group_name_members"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/scim/2.0/ServiceProviderConfig",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/scim_get_service_provider_config_resp"
+                },
+                "401": {
+                    "$ref": "#/components/responses/scim_unauthorized"
+                },
+                "500": {
+                    "$ref": "#/components/responses/scim_error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a service provider config for Docker's configuration.\n",
+            "tags": [
+                "scim"
+            ],
+            "operationId": "get__v2_scim_2.0_ServiceProviderConfig"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/scim/2.0/ResourceTypes",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/scim_get_resource_types_resp"
+                },
+                "401": {
+                    "$ref": "#/components/responses/scim_unauthorized"
+                },
+                "500": {
+                    "$ref": "#/components/responses/scim_error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns all resource types supported for the SCIM configuration.\n",
+            "tags": [
+                "scim"
+            ],
+            "operationId": "get__v2_scim_2.0_ResourceTypes"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/scim/2.0/ResourceTypes/{name}",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "name",
+                    "in": "path",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "User",
+                    "required": true
+                }
+            ],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/scim_get_resource_type_resp"
+                },
+                "401": {
+                    "$ref": "#/components/responses/scim_unauthorized"
+                },
+                "404": {
+                    "$ref": "#/components/responses/scim_not_found"
+                },
+                "500": {
+                    "$ref": "#/components/responses/scim_error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a resource type by name.\n",
+            "tags": [
+                "scim"
+            ],
+            "operationId": "get__v2_scim_2.0_ResourceTypes_name"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/scim/2.0/Schemas",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/scim_get_schemas_resp"
+                },
+                "401": {
+                    "$ref": "#/components/responses/scim_unauthorized"
+                },
+                "500": {
+                    "$ref": "#/components/responses/scim_error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns all schemas supported for the SCIM configuration.\n",
+            "tags": [
+                "scim"
+            ],
+            "operationId": "get__v2_scim_2.0_Schemas"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/scim/2.0/Schemas/{id}",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "urn:ietf:params:scim:schemas:core:2.0:User",
+                    "required": true
+                }
+            ],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/scim_get_schema_resp"
+                },
+                "401": {
+                    "$ref": "#/components/responses/scim_unauthorized"
+                },
+                "404": {
+                    "$ref": "#/components/responses/scim_not_found"
+                },
+                "500": {
+                    "$ref": "#/components/responses/scim_error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a schema by ID.\n",
+            "tags": [
+                "scim"
+            ],
+            "operationId": "get__v2_scim_2.0_Schemas_id"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/scim/2.0/Users",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "startIndex",
+                    "in": "query",
+                    "schema": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "description": "",
+                    "example": 1
+                },
+                {
+                    "name": "count",
+                    "in": "query",
+                    "schema": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 200
+                    },
+                    "description": "",
+                    "example": 10
+                },
+                {
+                    "name": "filter",
+                    "in": "query",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "description": "",
+                    "example": "userName eq \"jon.snow@docker.com\""
+                },
+                {
+                    "$ref": "#/components/parameters/scim_attributes"
+                },
+                {
+                    "name": "sortOrder",
+                    "in": "query",
+                    "schema": {
+                        "type": "string",
+                        "enum": [
+                            "ascending",
+                            "descending"
+                        ]
+                    }
+                },
+                {
+                    "name": "sortBy",
+                    "in": "query",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "description": "User attribute to sort by.",
+                    "example": "userName"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/scim_get_users_resp"
+                },
+                "400": {
+                    "$ref": "#/components/responses/scim_bad_request"
+                },
+                "401": {
+                    "$ref": "#/components/responses/scim_unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/scim_forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/scim_not_found"
+                },
+                "500": {
+                    "$ref": "#/components/responses/scim_error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns paginated users for an organization. Use `startIndex` and `count` query parameters to receive paginated results.\n\n**Sorting:**\n\nSorting allows you to specify the order in which resources are returned by specifying a combination of `sortBy` and `sortOrder` query parameters.\n\nThe `sortBy` parameter specifies the attribute whose value will be used to order the returned responses. The `sortOrder` parameter defines the order in which the `sortBy` parameter is applied. Allowed values are \"ascending\" and \"descending\".\n\n**Filtering:**\n\nYou can request a subset of resources by specifying the `filter` query parameter containing a filter expression. Attribute names and attribute operators used in filters are case insensitive. The filter parameter must contain at least one valid expression. Each expression must contain an attribute name followed by an attribute operator and an optional value.\n\nSupported operators are listed below.\n\n- `eq` equal\n- `ne` not equal\n- `co` contains\n- `sw` starts with\n- `and` Logical \"and\"\n- `or` Logical \"or\"\n- `not` \"Not\" function\n- `()` Precedence grouping\n",
+            "tags": [
+                "scim"
+            ],
+            "operationId": "get__v2_scim_2.0_Users"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/scim/2.0/Users/{id}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/scim_get_user_resp"
+                },
+                "400": {
+                    "$ref": "#/components/responses/scim_bad_request"
+                },
+                "401": {
+                    "$ref": "#/components/responses/scim_unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/scim_forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/scim_not_found"
+                },
+                "500": {
+                    "$ref": "#/components/responses/scim_error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a user by ID.\n",
+            "tags": [
+                "scim"
+            ],
+            "operationId": "get__v2_scim_2.0_Users_id"
+        }
+    ],
+    "tools": [
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/users/login",
+            "method": "post",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "Authentication successful",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "description": "successful user login response",
+                                "type": "object",
+                                "properties": {
+                                    "token": {
+                                        "description": "Created authentication token.\nThis token can be used in the HTTP Authorization header as a JWT to authenticate with the Docker Hub APIs.\n",
+                                        "type": "string",
+                                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+                                        "nullable": false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Authentication failed or second factor required",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "description": "failed user login response or second factor required",
+                                "type": "object",
+                                "required": [
+                                    "detail"
+                                ],
+                                "properties": {
+                                    "detail": {
+                                        "description": "Description of the error.",
+                                        "type": "string",
+                                        "example": "Incorrect authentication credentials",
+                                        "nullable": false
+                                    },
+                                    "login_2fa_token": {
+                                        "description": "Short time lived token to be used on `/v2/users/2fa-login` to complete the authentication. This field is present only if 2FA is enabled.\n",
+                                        "type": "string",
+                                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+                                        "nullable": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "request_body_parameters": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "description": "User login details",
+                            "type": "object",
+                            "required": [
+                                "username",
+                                "password"
+                            ],
+                            "properties": {
+                                "username": {
+                                    "description": "The username of the Docker Hub account to authenticate with.",
+                                    "type": "string",
+                                    "example": "myusername"
+                                },
+                                "password": {
+                                    "description": "The password or personal access token (PAT) of the Docker Hub account to authenticate with.\n",
+                                    "type": "string",
+                                    "example": "p@ssw0rd"
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Login details.",
+                "required": true
+            },
+            "description": "Creates and returns a bearer token in JWT format that you can use to authenticate with Docker Hub APIs.\n\nThe returned token is used in the HTTP Authorization header like `Authorization: Bearer {TOKEN}`.\n\n_**As of September 16, 2024, this route requires a personal access token (PAT) instead of a password if your organization has SSO enforced.**_\n\n<div style=\"background-color:rgb(255, 165, 0, .25); padding:5px; border-radius:4px\">\n  <strong>Deprecated</strong>: Use [<a href=\"#tag/authentication-api/operation/AuthCreateAccessToken\">Create access token</a>] instead.\n</div>\n",
+            "tags": [
+                "authentication-api"
+            ],
+            "operationId": "PostUsersLogin"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/users/2fa-login",
+            "method": "post",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "Authentication successful",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "description": "successful user login response",
+                                "type": "object",
+                                "properties": {
+                                    "token": {
+                                        "description": "Created authentication token.\nThis token can be used in the HTTP Authorization header as a JWT to authenticate with the Docker Hub APIs.\n",
+                                        "type": "string",
+                                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+                                        "nullable": false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Authentication failed",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "description": "failed second factor login response.",
+                                "type": "object",
+                                "properties": {
+                                    "detail": {
+                                        "description": "Description of the error.",
+                                        "type": "string",
+                                        "example": "Incorrect authentication credentials",
+                                        "nullable": false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "request_body_parameters": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "description": "Second factor user login details",
+                            "type": "object",
+                            "required": [
+                                "login_2fa_token",
+                                "code"
+                            ],
+                            "properties": {
+                                "login_2fa_token": {
+                                    "description": "The intermediate 2FA token returned from `/v2/users/login` API.",
+                                    "type": "string",
+                                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                                },
+                                "code": {
+                                    "description": "The Time-based One-Time Password of the Docker Hub account to authenticate with.\n",
+                                    "type": "string",
+                                    "example": 123456
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Login details.",
+                "required": true
+            },
+            "description": "When a user has two-factor authentication (2FA) enabled, this is the second call to perform after `/v2/users/login` call.\n\nCreates and returns a bearer token in JWT format that you can use to authenticate with Docker Hub APIs.\n\nThe returned token is used in the HTTP Authorization header like `Authorization: Bearer {TOKEN}`.\n\nMost Docker Hub APIs require this token either to consume or to get detailed information. For example, to list images in a private repository.\n",
+            "tags": [
+                "authentication-api"
+            ],
+            "operationId": "PostUsers2FALogin"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/auth/token",
+            "method": "post",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "Token created",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "description": "successful access token response",
+                                "type": "object",
+                                "properties": {
+                                    "access_token": {
+                                        "description": "The created access token. This expires in 10 minutes.",
+                                        "type": "string",
+                                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "description": "Authentication failed",
+                    "$ref": "#/components/responses/unauthorized"
+                }
+            },
+            "request_body_parameters": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "description": "Request to create access token",
+                            "type": "object",
+                            "required": [
+                                "identifier",
+                                "secret"
+                            ],
+                            "properties": {
+                                "identifier": {
+                                    "description": "The identifier of the account to create an access token for. If using a password or personal access token,\nthis must be a username. If using an organization access token, this must be an organization name.\n",
+                                    "type": "string",
+                                    "example": "myusername"
+                                },
+                                "secret": {
+                                    "description": "The secret of the account to create an access token for. This can be a password, personal access token, or\norganization access token.\n",
+                                    "type": "string",
+                                    "example": "dckr_pat_124509ugsdjga93"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "description": "Creates and returns a short-lived access token in JWT format for use as a bearer when calling Docker APIs.\n\nIf successful, the access token returned should be used in the HTTP Authorization header like \n`Authorization: Bearer {access_token}`.\n\n_**If your organization has SSO enforced, you must use a personal access token (PAT) instead of a password.**_\n",
+            "tags": [
+                "authentication-api"
+            ],
+            "operationId": "AuthCreateAccessToken"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/access-tokens",
+            "method": "post",
+            "parameters": [],
+            "responses": {
+                "201": {
+                    "description": "Created",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/accessToken"
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "$ref": "#/components/responses/BadRequest"
+                },
+                "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                }
+            },
+            "request_body_parameters": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "token_label",
+                                "scopes"
+                            ],
+                            "properties": {
+                                "token_label": {
+                                    "type": "string",
+                                    "description": "Friendly name for you to identify the token.",
+                                    "example": "My read only token",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                },
+                                "scopes": {
+                                    "type": "array",
+                                    "description": "Valid scopes: \"repo:admin\", \"repo:write\", \"repo:read\", \"repo:public_read\"\n",
+                                    "example": [
+                                        "repo:read"
+                                    ],
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "expires_at": {
+                                    "type": "string",
+                                    "description": "Optional expiration date for the token.\nIf omitted, the token will remain valid indefinitely.\n",
+                                    "format": "date-time",
+                                    "example": "2021-10-28T18:30:19.520861Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": true
+            },
+            "description": "Creates and returns a personal access token.",
+            "tags": [
+                "access-tokens"
+            ],
+            "operationId": "post__v2_access-tokens"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/access-tokens/{uuid}",
+            "method": "patch",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/accessToken"
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "$ref": "#/components/responses/BadRequest"
+                },
+                "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                }
+            },
+            "request_body_parameters": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "token_label": {
+                                    "type": "string",
+                                    "example": "My read only token",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                },
+                                "is_active": {
+                                    "type": "boolean",
+                                    "example": false
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": true
+            },
+            "description": "Updates a personal access token partially. You can either update the token's label or enable/disable it.\n",
+            "tags": [
+                "access-tokens"
+            ],
+            "operationId": "patch__v2_access-tokens_uuid"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/access-tokens/{uuid}",
+            "method": "delete",
+            "parameters": [],
+            "responses": {
+                "204": {
+                    "description": "A successful response."
+                },
+                "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                },
+                "404": {
+                    "$ref": "#/components/responses/NotFound"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Deletes a personal access token permanently. This cannot be undone.\n",
+            "tags": [
+                "access-tokens"
+            ],
+            "operationId": "delete__v2_access-tokens_uuid"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{name}/settings",
+            "method": "put",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "restricted_images": {
+                                        "$ref": "#/components/schemas/restricted_images"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/Forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/NotFound"
+                }
+            },
+            "request_body_parameters": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "restricted_images"
+                            ],
+                            "properties": {
+                                "restricted_images": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/restricted_images"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "enabled",
+                                                "allow_official_images",
+                                                "allow_verified_publishers"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": true
+            },
+            "description": "Updates an organization's settings. Some settings are only used when the organization is on a business plan.\n\n***Only users with administrative privileges for the organization (owner role) can modify these settings.***\n\nThe following settings are only used on a business plan:\n- `restricted_images`\n",
+            "tags": [
+                "org-settings"
+            ],
+            "operationId": "put__v2_orgs_name_settings"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{name}/access-tokens",
+            "method": "post",
+            "parameters": [],
+            "responses": {
+                "201": {
+                    "description": "Created",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/orgAccessToken"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "token": {
+                                                "type": "string",
+                                                "description": "The actual token value that can be used for authentication",
+                                                "example": "dckr_oat_7awgM4jG5SQvxcvmNzhKj8PQjxo"
+                                            },
+                                            "resources": {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/orgAccessTokenResource"
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "$ref": "#/components/responses/BadRequest"
+                },
+                "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/Forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/NotFound"
+                }
+            },
+            "request_body_parameters": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "label": {
+                                    "type": "string",
+                                    "description": "Label for the access token",
+                                    "example": "My organization token",
+                                    "required": true
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "Description of the access token",
+                                    "example": "Token for CI/CD pipeline"
+                                },
+                                "resources": {
+                                    "type": "array",
+                                    "description": "Resources this token has access to",
+                                    "items": {
+                                        "$ref": "#/components/schemas/orgAccessTokenResource"
+                                    }
+                                },
+                                "expires_at": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "description": "Expiration date for the token",
+                                    "example": "2023-05-20T00:54:18Z",
+                                    "nullable": true
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": true
+            },
+            "description": "Create an access token for an organization.\n",
+            "tags": [
+                "org-access-tokens"
+            ],
+            "operationId": "post__v2_orgs_name_access-tokens"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/access-tokens/{access_token_id}",
+            "method": "patch",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/orgAccessToken"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "resources": {
+                                                "type": "array",
+                                                "description": "Resources this token has access to",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/orgAccessTokenResource"
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/Forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/NotFound"
+                }
+            },
+            "request_body_parameters": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "label": {
+                                    "type": "string",
+                                    "description": "Label for the access token",
+                                    "example": "My organization token"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "Description of the access token",
+                                    "example": "Token for CI/CD pipeline"
+                                },
+                                "resources": {
+                                    "type": "array",
+                                    "description": "Resources this token has access to",
+                                    "items": {
+                                        "$ref": "#/components/schemas/orgAccessTokenResource"
+                                    }
+                                },
+                                "is_active": {
+                                    "type": "boolean",
+                                    "description": "Whether the token is active",
+                                    "example": true
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": true
+            },
+            "description": "Update a specific access token for an organization.\n",
+            "tags": [
+                "org-access-tokens"
+            ],
+            "operationId": "patch__v2_orgs_org_name_access-tokens_access_token_id"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/access-tokens/{access_token_id}",
+            "method": "delete",
+            "parameters": [],
+            "responses": {
+                "204": {
+                    "description": "Access token deleted successfully"
+                },
+                "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/Forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/NotFound"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Delete a specific access token for an organization. This action cannot be undone.\n",
+            "tags": [
+                "org-access-tokens"
+            ],
+            "operationId": "delete__v2_orgs_org_name_access-tokens_access_token_id"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/repositories/{namespace}/{repository}/groups",
+            "method": "post",
+            "parameters": [
+                {
+                    "in": "query",
+                    "name": "group_name",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "description": "Name of the group (team) in the organization."
+                },
+                {
+                    "in": "query",
+                    "name": "permission",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "description": "Access level for the group. Possible values:\n- `read`\n- `write`\n- `admin`\n"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/team_repo"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/NotFound"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "",
+            "tags": [
+                "repositories"
+            ],
+            "operationId": "post__v2_repositories_namespace_repository_groups"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/members/{username}",
+            "method": "put",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "Member role updated",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/user"
+                                    }
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "description": "User's email address",
+                                        "example": "example@docker.com"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "description": "User's role in the Organization",
+                                        "enum": [
+                                            "Owner",
+                                            "Member",
+                                            "Invitee"
+                                        ],
+                                        "example": "Owner"
+                                    },
+                                    "groups": {
+                                        "type": "array",
+                                        "description": "Groups (Teams) that the user is member of",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "developers",
+                                            "owners"
+                                        ]
+                                    },
+                                    "is_guest": {
+                                        "type": "boolean",
+                                        "description": "If the organization has verfied domains, members that have email addresses outside of those domains will be flagged as guests.",
+                                        "example": false
+                                    },
+                                    "primary_email": {
+                                        "type": "string",
+                                        "description": "The user's email primary address.",
+                                        "example": "example@docker.com",
+                                        "deprecated": true
+                                    },
+                                    "last_logged_in_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "description": "Last time the user logged in. To access this field, you must have insights visible for your organization. See \n[Insights](https://docs.docker.com/admin/organization/insights/#view-insights-for-organization-users).\n",
+                                        "example": "2021-01-05T21:06:53.506400Z"
+                                    },
+                                    "last_seen_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "description": "Last time the user was seen. To access this field, you must have insights visible for your organization. See \n[Insights](https://docs.docker.com/admin/organization/insights/#view-insights-for-organization-users).\n",
+                                        "example": "2021-01-05T21:06:53.506400Z"
+                                    },
+                                    "last_desktop_version": {
+                                        "type": "string",
+                                        "description": "Last desktop version the user used. To access this field, you must have insights visible for your organization. See \n[Insights](https://docs.docker.com/admin/organization/insights/#view-insights-for-organization-users).\n",
+                                        "example": "4.29.0"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "$ref": "#/components/responses/bad_request"
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/not_found"
+                }
+            },
+            "request_body_parameters": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "role"
+                            ],
+                            "properties": {
+                                "role": {
+                                    "type": "string",
+                                    "description": "Role of the member",
+                                    "enum": [
+                                        "owner",
+                                        "editor",
+                                        "member"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "description": "Updates the role of a member in the organization.\n***Only users in the \"owners\" group of the organization can use this endpoint.***\n\n<span class=\"oat\"></span>\n",
+            "tags": [
+                "orgs"
+            ],
+            "operationId": "put__v2_orgs_org_name_members_username"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/members/{username}",
+            "method": "delete",
+            "parameters": [],
+            "responses": {
+                "204": {
+                    "description": "Member removed successfully"
+                },
+                "400": {
+                    "$ref": "#/components/responses/bad_request"
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/not_found"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Removes the member from the org, ie. all groups in the org, unless they're the last owner\n\n<span class=\"oat\"></span>\n",
+            "tags": [
+                "orgs"
+            ],
+            "operationId": "delete__v2_orgs_org_name_members_username"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/groups",
+            "method": "post",
+            "parameters": [],
+            "responses": {
+                "201": {
+                    "description": "Group created successfully",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "example": 10,
+                                        "description": "Group ID"
+                                    },
+                                    "uuid": {
+                                        "type": "string",
+                                        "description": "UUID for the group"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "mygroup",
+                                        "description": "Name of the group"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Groups description",
+                                        "description": "Description of the group"
+                                    },
+                                    "member_count": {
+                                        "type": "number",
+                                        "example": 10,
+                                        "description": "Member count of the group"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "$ref": "#/components/responses/bad_request"
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                }
+            },
+            "request_body_parameters": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "name"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "description": "Create a new group within an organization.\n\n<span class=\"oat\"></span>\n",
+            "tags": [
+                "groups"
+            ],
+            "operationId": "post__v2_orgs_org_name_groups"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/groups/{group_name}",
+            "method": "put",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "example": 10,
+                                        "description": "Group ID"
+                                    },
+                                    "uuid": {
+                                        "type": "string",
+                                        "description": "UUID for the group"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "mygroup",
+                                        "description": "Name of the group"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Groups description",
+                                        "description": "Description of the group"
+                                    },
+                                    "member_count": {
+                                        "type": "number",
+                                        "example": 10,
+                                        "description": "Member count of the group"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/not_found"
+                }
+            },
+            "request_body_parameters": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "name"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "description": "<span class=\"oat\"></span>\n",
+            "tags": [
+                "groups"
+            ],
+            "operationId": "put__v2_orgs_org_name_groups_group_name"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/groups/{group_name}",
+            "method": "patch",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "number",
+                                        "example": 10,
+                                        "description": "Group ID"
+                                    },
+                                    "uuid": {
+                                        "type": "string",
+                                        "description": "UUID for the group"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "mygroup",
+                                        "description": "Name of the group"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Groups description",
+                                        "description": "Description of the group"
+                                    },
+                                    "member_count": {
+                                        "type": "number",
+                                        "example": 10,
+                                        "description": "Member count of the group"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/not_found"
+                }
+            },
+            "request_body_parameters": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "description": "<span class=\"oat\"></span>\n",
+            "tags": [
+                "groups"
+            ],
+            "operationId": "patch__v2_orgs_org_name_groups_group_name"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/groups/{group_name}",
+            "method": "delete",
+            "parameters": [],
+            "responses": {
+                "204": {
+                    "description": "Group deleted successfully"
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/not_found"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "<span class=\"oat\"></span>\n",
+            "tags": [
+                "groups"
+            ],
+            "operationId": "delete__v2_orgs_org_name_groups_group_name"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/groups/{group_name}/members",
+            "method": "post",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/org_name"
+                },
+                {
+                    "$ref": "#/components/parameters/group_name"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "OK"
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/not_found"
+                },
+                "500": {
+                    "$ref": "#/components/responses/internal_error"
+                }
+            },
+            "request_body_parameters": {
+                "$ref": "#/components/requestBodies/add_member_to_org_group"
+            },
+            "description": "<span class=\"oat\"></span>\n",
+            "tags": [
+                "groups"
+            ],
+            "operationId": "post__v2_orgs_org_name_groups_group_name_members"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/orgs/{org_name}/groups/{group_name}/members/{username}",
+            "method": "delete",
+            "parameters": [],
+            "responses": {
+                "204": {
+                    "description": "User removed successfully"
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/not_found"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "<span class=\"oat\"></span>\n",
+            "tags": [
+                "groups"
+            ],
+            "operationId": "delete__v2_orgs_org_name_groups_group_name_members_username"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/invites/{id}",
+            "method": "delete",
+            "parameters": [],
+            "responses": {
+                "204": {
+                    "description": ""
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/not_found"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Mark the invite as cancelled so it doesn't show up on the list of pending invites\n\n<span class=\"oat\"></span>\n",
+            "tags": [
+                "invites"
+            ],
+            "operationId": "delete__v2_invites_id"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/invites/{id}/resend",
+            "method": "patch",
+            "parameters": [],
+            "responses": {
+                "204": {
+                    "description": ""
+                },
+                "401": {
+                    "$ref": "#/components/responses/unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/not_found"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Resend a pending invite to the user, any org owner can resend an invite\n\n<span class=\"oat\"></span>\n",
+            "tags": [
+                "invites"
+            ],
+            "operationId": "patch__v2_invites_id_resend"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/invites/bulk",
+            "method": "post",
+            "parameters": [],
+            "responses": {
+                "202": {
+                    "description": "Accepted",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "invitees": {
+                                        "$ref": "#/components/schemas/bulk_invite"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "$ref": "#/components/responses/bad_request"
+                },
+                "409": {
+                    "$ref": "#/components/responses/conflict"
+                }
+            },
+            "request_body_parameters": {
+                "$ref": "#/components/requestBodies/bulk_invite_request"
+            },
+            "description": "Create multiple invites by emails or DockerIDs. Only a team owner can create invites.\n\n<span class=\"oat\"></span>\n",
+            "tags": [
+                "invites"
+            ],
+            "operationId": "post__v2_invites_bulk"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/scim/2.0/Users",
+            "method": "post",
+            "parameters": [],
+            "responses": {
+                "201": {
+                    "$ref": "#/components/responses/scim_create_user_resp"
+                },
+                "400": {
+                    "$ref": "#/components/responses/scim_bad_request"
+                },
+                "401": {
+                    "$ref": "#/components/responses/scim_unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/scim_forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/scim_not_found"
+                },
+                "409": {
+                    "$ref": "#/components/responses/scim_conflict"
+                },
+                "500": {
+                    "$ref": "#/components/responses/scim_error"
+                }
+            },
+            "request_body_parameters": {
+                "$ref": "#/components/requestBodies/scim_create_user_request"
+            },
+            "description": "Creates a user. If the user already exists by email, they are assigned to the organization on the \"company\" team.\n",
+            "tags": [
+                "scim"
+            ],
+            "operationId": "post__v2_scim_2.0_Users"
+        },
+        {
+            "server_url": "https://hub.docker.com",
+            "path": "/v2/scim/2.0/Users/{id}",
+            "method": "put",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/scim_update_user_resp"
+                },
+                "400": {
+                    "$ref": "#/components/responses/scim_bad_request"
+                },
+                "401": {
+                    "$ref": "#/components/responses/scim_unauthorized"
+                },
+                "403": {
+                    "$ref": "#/components/responses/scim_forbidden"
+                },
+                "404": {
+                    "$ref": "#/components/responses/scim_not_found"
+                },
+                "409": {
+                    "$ref": "#/components/responses/scim_conflict"
+                },
+                "500": {
+                    "$ref": "#/components/responses/scim_error"
+                }
+            },
+            "request_body_parameters": {
+                "$ref": "#/components/requestBodies/scim_update_user_request"
+            },
+            "description": "Updates a user. This route is used to change the user's name, activate, and deactivate the user.\n",
+            "tags": [
+                "scim"
+            ],
+            "operationId": "put__v2_scim_2.0_Users_id"
+        }
+    ]
+}

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from collections import defaultdict
 
 import json
 import httpx
@@ -40,6 +41,7 @@ class OpenAPIToMCPConverter:
             'TRACE': 'tool',
         }
         self.api_filter = FilterOpenAPISpecs(self.name)
+        self.operation_ids = defaultdict(int) # sometimes APIs don't use unique operation IDs, so we need to ensure uniqueness
 
     async def run_pipeline(self):
         """
@@ -120,6 +122,10 @@ class OpenAPIToMCPConverter:
                 break
         for path, methods in paths.items():
             for method, details in methods.items():
+                if not isinstance(details, dict):
+                    # sometimes the method is 'parameters' and the details are a list of reference schemas
+                    logger.warning(f"Details for method '{method}' at path '{path}' is not a dictionary. Skipping.")
+                    continue
                 operation_id = details.get('operationId')
                 parameters = details.get('parameters', [])
                 responses = details.get('responses', {})
@@ -152,6 +158,9 @@ class OpenAPIToMCPConverter:
                 # If operationId is not present, generate a unique one
                 if not operation_id:
                     operation_id = f"{method}_{path.replace('/', '_').replace('{', '').replace('}', '')}"
+                self.operation_ids[operation_id] += 1
+                if self.operation_ids[operation_id] > 1:
+                    operation_id = f"{operation_id}_{self.operation_ids[operation_id]}" # will append _1, _2, etc. to the operationId
 
                 # Create a dictionary for the operation
                 operation_info = {
@@ -212,16 +221,9 @@ class OpenAPIToMCPConverter:
     
     def save_results(self, results, filtered):
         """
-        Save the results to a TOML file.
+        Save the results to a JSON file
         """
-        if filtered:
-            path = os.path.join('api', 'connectors', 'filtered', f'{self.name}.toml')
-        else:
-            path = os.path.join('api', 'connectors', f'{self.name}.toml')
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, 'w') as toml_file:
-            toml.dump(results, toml_file)
-        # also save the results to a JSON file
-        json_path = path.replace('.toml', '.json')
-        with open(json_path, 'w') as json_file:
+        path = os.path.join('api', 'connectors', f'{self.name}.json')
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w') as json_file:
             json.dump(results, json_file, indent=4)

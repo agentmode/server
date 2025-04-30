@@ -1,5 +1,7 @@
+import json
+from dataclasses import dataclass, field
+
 import httpx
-from dataclasses import dataclass
 
 from agentmode.logs import logger
 
@@ -7,24 +9,23 @@ subclasses = {}
 
 @dataclass
 class APIConnection:
-
-    def __init__(self):
-        self.client = None
-        self.mcp_resources = []
-        self.mcp_tools = []
-        self.auth_type = None
-        self.credentials = None
-        self.server_url = None
+    """
+    """
+    mcp_resources: list = field(default_factory=list)
+    mcp_tools: list = field(default_factory=list)
+    auth_type: str = None
+    credentials: dict = None
+    server_url: str = None
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         subclasses[cls.name] = cls
 
     @classmethod
-    def create(cls, name, settings, **kwargs):
+    def create(cls, name, **kwargs):
         if name not in subclasses.keys():
             raise ValueError(f"Unknown APIConnection platform {name}")
-        instance = subclasses[name](settings=settings, **kwargs)
+        instance = subclasses[name](**kwargs)
         instance.client = httpx.Client()
         return instance
     
@@ -112,9 +113,11 @@ class APIConnection:
                 # Check if the name already exists in the mapping (ie we may have multiple connections to the same API, ie one for prod & one for staging)
                 name = f"{self.name}-{item.get('operationId')}"
                 # Increment the counter for the connection name
+                suffix = ""
                 connection_name_counter[name] += 1
                 if connection_name_counter[name] > 1:
-                    name = f"{name}_{connection_name_counter[name]}"
+                    suffix = f"_{connection_name_counter[name]}"
+                    name = f"{name}{suffix}"
 
                 # Create a dynamic function
                 fn = self.create_dynamic_tool_or_resource(name, item.get('parameters', []), item.get('request_body_parameters', {}))
@@ -122,13 +125,19 @@ class APIConnection:
                 fn.__doc__ = self.generate_docstring_for_function(
                     item.get('operationId'),
                     item.get('description'),
-                    item.get('parameters', {}),
+                    item.get('parameters', []),
                     item.get('responses', {})
                 )
-                getattr(mcp, type_)()(fn) # equivalent to mcp.resource()(fn) or mcp.tool()(fn)
+                # resources need a URI parameter, whereas tools don't
+                if type_ == 'resource':
+                    uri = f"{self.name}{suffix}//{item.get('operationId')}/{{input_parameters}}" # input_parameters is required to be in the URI
+                    # otherwise you get an error: ValueError: Mismatch between URI parameters set() and function parameters {'input_parameters'}
+                    mcp.resource(uri)(fn)
+                else:
+                    mcp.tool()(fn) # getattr(mcp, type_)()(fn)
                 logger.debug(f"Generated function for {item.get('operationId')} of type {type_}")
 
-    def generate_docstring_for_function(self, function_name: str, description: str = '', parameters: dict = {}, responses: dict = {}) -> str:
+    def generate_docstring_for_function(self, function_name: str, description: str = '', parameters: list = [], responses: dict = {}) -> str:
         """
         Generate a description using the path, method, and parameters
         following the Google-style docstring format
@@ -143,16 +152,17 @@ Args:
     input_parameters (dict): All the input parameters for the function, with possible key/value items:
             """
 
-        for param_name, param_details in parameters.items():
-            if param_details.get('required'):
+        for parameter in parameters:
+            param_name = parameter.get('name')
+            if parameter.get('required'):
                 required_str = 'required'
             else:
                 required_str = 'optional'
-            param_type = param_details.get('type')
+            param_type = parameter.get('type')
             param_str = ''
             if param_type:
                 param_str = f" ({param_type})"
-            param_description = ': ' + param_details.get('description', '')
+            param_description = ': ' + parameter.get('description', '')
             docstring += f"    {param_name}{param_str} {required_str}{param_description}\n"
 
         if responses:
@@ -189,7 +199,7 @@ Args:
                 return {"Authorization": f"Bearer {token}"}
 
             elif auth_type == 'API key in headers':
-                return credentials.get('headers')
+                return json.loads(credentials.get('headers'))
 
             elif auth_type == 'Digest Auth':
                 username = credentials.get('username')

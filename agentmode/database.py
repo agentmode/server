@@ -1,6 +1,6 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -14,10 +14,8 @@ subclasses = {}
 @dataclass
 class DatabaseConnection:
 	settings: dict
-
-	def __init__(self):
-		self.threadpool = None
-		self.create_engine_kwargs = {}
+	threadpool: ThreadPoolExecutor = None
+	create_engine_kwargs: dict = field(default_factory=dict)  # Use default_factory for mutable default
 
 	def __init_subclass__(cls, **kwargs):
 		super().__init_subclass__(**kwargs)

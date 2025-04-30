@@ -1,0 +1,707 @@
+{
+    "resources": [
+        {
+            "server_url": "https://api.au.sumologic.com/api/",
+            "path": "/v1/apps",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "List of all available apps.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "apps"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "apps": {
+                                        "type": "array",
+                                        "description": "An array of Apps",
+                                        "items": {
+                                            "$ref": "#/components/schemas/App"
+                                        }
+                                    }
+                                },
+                                "description": "List of all available apps from the App Catalog."
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "description": "Operation failed with an error.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "errors",
+                                    "id"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "description": "An identifier for the error; this is unique to the specific API request.",
+                                        "example": "IUUQI-DGH5I-TJ045"
+                                    },
+                                    "errors": {
+                                        "type": "array",
+                                        "description": "A list of one or more causes of the error.",
+                                        "example": [
+                                            {
+                                                "code": "auth:password_too_short",
+                                                "message": "Your password was too short."
+                                            },
+                                            {
+                                                "code": "auth:password_character_classes",
+                                                "message": "Your password did not contain any non-alphanumeric characters"
+                                            }
+                                        ],
+                                        "items": {
+                                            "$ref": "#/components/schemas/ErrorDescription"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Lists all available apps from the App Catalog.",
+            "tags": [
+                "appManagement"
+            ],
+            "operationId": "listApps"
+        },
+        {
+            "server_url": "https://api.au.sumologic.com/api/",
+            "path": "/v1/apps/{uuid}",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "uuid",
+                    "in": "path",
+                    "description": "The identifier of the app to retrieve.",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "The retrieved app.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "appDefinition",
+                                    "appManifest"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "appDefinition": {
+                                        "$ref": "#/components/schemas/AppDefinition"
+                                    },
+                                    "appManifest": {
+                                        "$ref": "#/components/schemas/AppManifest"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "description": "Operation failed with an error.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "errors",
+                                    "id"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "description": "An identifier for the error; this is unique to the specific API request.",
+                                        "example": "IUUQI-DGH5I-TJ045"
+                                    },
+                                    "errors": {
+                                        "type": "array",
+                                        "description": "A list of one or more causes of the error.",
+                                        "example": [
+                                            {
+                                                "code": "auth:password_too_short",
+                                                "message": "Your password was too short."
+                                            },
+                                            {
+                                                "code": "auth:password_character_classes",
+                                                "message": "Your password did not contain any non-alphanumeric characters"
+                                            }
+                                        ],
+                                        "items": {
+                                            "$ref": "#/components/schemas/ErrorDescription"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Gets the app with the given universally unique identifier (UUID).",
+            "tags": [
+                "appManagement"
+            ],
+            "operationId": "getApp"
+        },
+        {
+            "server_url": "https://api.au.sumologic.com/api/",
+            "path": "/v1/apps/install/{jobId}/status",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "jobId",
+                    "in": "path",
+                    "description": "The identifier of the asynchronous install job.",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "The status of the app install job.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "description": "Whether or not the request is in progress (`InProgress`), has completed successfully (`Success`), or has completed with an error (`Failed`)."
+                                    },
+                                    "statusMessage": {
+                                        "type": "string",
+                                        "description": "Additional status message generated if the status is not `Failed`."
+                                    },
+                                    "error": {
+                                        "$ref": "#/components/schemas/ErrorDescription"
+                                    }
+                                },
+                                "example": {
+                                    "status": "Success",
+                                    "statusMessage": ""
+                                }
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "description": "App installation failed with an error.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "errors",
+                                    "id"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "description": "An identifier for the error; this is unique to the specific API request.",
+                                        "example": "IUUQI-DGH5I-TJ045"
+                                    },
+                                    "errors": {
+                                        "type": "array",
+                                        "description": "A list of one or more causes of the error.",
+                                        "example": [
+                                            {
+                                                "code": "auth:password_too_short",
+                                                "message": "Your password was too short."
+                                            },
+                                            {
+                                                "code": "auth:password_character_classes",
+                                                "message": "Your password did not contain any non-alphanumeric characters"
+                                            }
+                                        ],
+                                        "items": {
+                                            "$ref": "#/components/schemas/ErrorDescription"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Get the status of an asynchronous app install request for the given job identifier.",
+            "tags": [
+                "appManagement"
+            ],
+            "operationId": "getAsyncInstallStatus"
+        },
+        {
+            "server_url": "https://api.au.sumologic.com/api/",
+            "path": "/v2/apps/install/{jobId}/status",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "jobId",
+                    "in": "path",
+                    "description": "Identifier of the asynchronous job for installing the app.",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "C03E086C137F38B4"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Status of the app installation job.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "description": "Whether or not the request is in progress (`InProgress`), has completed successfully (`Success`), or has completed with an error (`Failed`).",
+                                        "example": "Success"
+                                    },
+                                    "instanceId": {
+                                        "type": "string",
+                                        "description": "Instance identifier of the installed app. This field is not set yet but is a placeholder for future use.",
+                                        "example": "0000000001578BE8"
+                                    },
+                                    "path": {
+                                        "type": "string",
+                                        "description": "Path of the folder in which the app was installed.",
+                                        "example": "/Library/Installed Apps/AWS CloudTrail"
+                                    },
+                                    "folderId": {
+                                        "type": "string",
+                                        "description": "Identifier of the folder in which the app was installed.",
+                                        "example": "0000000001578BE8"
+                                    },
+                                    "error": {
+                                        "$ref": "#/components/schemas/ErrorDescription"
+                                    }
+                                },
+                                "description": "Status of the install app async job."
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "description": "Operation failed with an error.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "errors",
+                                    "id"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "description": "An identifier for the error; this is unique to the specific API request.",
+                                        "example": "IUUQI-DGH5I-TJ045"
+                                    },
+                                    "errors": {
+                                        "type": "array",
+                                        "description": "A list of one or more causes of the error.",
+                                        "example": [
+                                            {
+                                                "code": "auth:password_too_short",
+                                                "message": "Your password was too short."
+                                            },
+                                            {
+                                                "code": "auth:password_character_classes",
+                                                "message": "Your password did not contain any non-alphanumeric characters"
+                                            }
+                                        ],
+                                        "items": {
+                                            "$ref": "#/components/schemas/ErrorDescription"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Get the status of an asynchronous app install request for the given job identifier.",
+            "tags": [
+                "appManagementV2"
+            ],
+            "operationId": "getAsyncInstallAppStatus"
+        },
+        {
+            "server_url": "https://api.au.sumologic.com/api/",
+            "path": "/v2/apps/uninstall/{jobId}/status",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "jobId",
+                    "in": "path",
+                    "description": "Identifier of the asynchronous job for uninstalling the app.",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "C03E086C137F38B4"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Status of the app uninstall job.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "description": "Whether or not the request is in progress (`InProgress`), has completed successfully (`Success`), or has completed with an error (`Failed`).",
+                                        "example": "Success"
+                                    },
+                                    "errors": {
+                                        "type": "array",
+                                        "description": "More information about the failure if the status is `Failed`.",
+                                        "items": {
+                                            "$ref": "#/components/schemas/ErrorDescription"
+                                        }
+                                    }
+                                },
+                                "description": "Status of an uninstall app job."
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "description": "Operation failed with an error.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "errors",
+                                    "id"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "description": "An identifier for the error; this is unique to the specific API request.",
+                                        "example": "IUUQI-DGH5I-TJ045"
+                                    },
+                                    "errors": {
+                                        "type": "array",
+                                        "description": "A list of one or more causes of the error.",
+                                        "example": [
+                                            {
+                                                "code": "auth:password_too_short",
+                                                "message": "Your password was too short."
+                                            },
+                                            {
+                                                "code": "auth:password_character_classes",
+                                                "message": "Your password did not contain any non-alphanumeric characters"
+                                            }
+                                        ],
+                                        "items": {
+                                            "$ref": "#/components/schemas/ErrorDescription"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Get the status of an asynchronous app uninstall request for the given job identifier.",
+            "tags": [
+                "appManagementV2"
+            ],
+            "operationId": "getAsyncUninstallAppStatus"
+        },
+        {
+            "server_url": "https://api.au.sumologic.com/api/",
+            "path": "/v2/apps/upgrade/{jobId}/status",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "jobId",
+                    "in": "path",
+                    "description": "Identifier of the asynchronous job for upgrading the app.",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "C03E086C137F38B4"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Status of the app upgrade job.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "description": "Whether or not the request is in progress (`InProgress`), has completed successfully (`Success`), or has completed with an error (`Failed`).",
+                                        "example": "Success"
+                                    },
+                                    "instanceId": {
+                                        "type": "string",
+                                        "description": "Instance identifier of the upgraded app. This field is not set yet but is a placeholder for future use.",
+                                        "example": "0000000001578BE8"
+                                    },
+                                    "path": {
+                                        "type": "string",
+                                        "description": "Path of the folder in which the app was upgraded.",
+                                        "example": "/Library/Installed Apps/AWS CloudTrail"
+                                    },
+                                    "folderId": {
+                                        "type": "string",
+                                        "description": "Identifier of the folder in which the app was upgraded.",
+                                        "example": "0000000001578BE8"
+                                    },
+                                    "error": {
+                                        "$ref": "#/components/schemas/ErrorDescription"
+                                    }
+                                },
+                                "description": "Status of the upgrade app async job."
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "description": "Operation failed with an error.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "errors",
+                                    "id"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "description": "An identifier for the error; this is unique to the specific API request.",
+                                        "example": "IUUQI-DGH5I-TJ045"
+                                    },
+                                    "errors": {
+                                        "type": "array",
+                                        "description": "A list of one or more causes of the error.",
+                                        "example": [
+                                            {
+                                                "code": "auth:password_too_short",
+                                                "message": "Your password was too short."
+                                            },
+                                            {
+                                                "code": "auth:password_character_classes",
+                                                "message": "Your password did not contain any non-alphanumeric characters"
+                                            }
+                                        ],
+                                        "items": {
+                                            "$ref": "#/components/schemas/ErrorDescription"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Get the status of an asynchronous app upgrade request for the given job identifier.",
+            "tags": [
+                "appManagementV2"
+            ],
+            "operationId": "getAsyncUpgradeAppStatus"
+        },
+        {
+            "server_url": "https://api.au.sumologic.com/api/",
+            "path": "/v2/apps",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "name",
+                    "in": "query",
+                    "description": "Name of the app.",
+                    "required": false,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "AWS%20CloudTrail"
+                },
+                {
+                    "name": "author",
+                    "in": "query",
+                    "description": "Author of the app.",
+                    "required": false,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "Sumo%20Logic"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "List of apps.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "apps"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "apps": {
+                                        "type": "array",
+                                        "description": "An array of apps.",
+                                        "items": {
+                                            "$ref": "#/components/schemas/AppV2"
+                                        }
+                                    }
+                                },
+                                "description": "List of all apps from the apps"
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "description": "Operation failed with an error.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "errors",
+                                    "id"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "description": "An identifier for the error; this is unique to the specific API request.",
+                                        "example": "IUUQI-DGH5I-TJ045"
+                                    },
+                                    "errors": {
+                                        "type": "array",
+                                        "description": "A list of one or more causes of the error.",
+                                        "example": [
+                                            {
+                                                "code": "auth:password_too_short",
+                                                "message": "Your password was too short."
+                                            },
+                                            {
+                                                "code": "auth:password_character_classes",
+                                                "message": "Your password did not contain any non-alphanumeric characters"
+                                            }
+                                        ],
+                                        "items": {
+                                            "$ref": "#/components/schemas/ErrorDescription"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "request_body_parameters": {},
+            "description": "List all apps from the App Catalog.",
+            "tags": [
+                "appManagementV2"
+            ],
+            "operationId": "listAppsV2"
+        },
+        {
+            "server_url": "https://api.au.sumologic.com/api/",
+            "path": "/v2/apps/{uuid}/details",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "uuid",
+                    "in": "path",
+                    "description": "UUID of the app.",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "ceb7fac5-1127-4a04-a5b8-2e49190be3d5"
+                },
+                {
+                    "name": "version",
+                    "in": "query",
+                    "description": "Version of the app. The latest version is used if this is omitted or specified as \"latest\".",
+                    "required": false,
+                    "schema": {
+                        "type": "string"
+                    },
+                    "example": "1.0.0"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Information about the requested app.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "baseUrl",
+                                    "manifest",
+                                    "uuid",
+                                    "version"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "uuid": {
+                                        "type": "string",
+                                        "description": "UUID of the app.",
+                                        "format": "uuid",
+                                        "example": "ceb7fac5-1127-4a04-a5b8-2e49190be3d5"
+                                    },
+                                    "version": {
+                                        "type": "string",
+                                        "description": "Version of the app.",
+                                        "example": "1.0.0"
+                                    },
+                                    "baseUrl": {
+                                        "type": "string",
+                                        "description": "URL prefix for where the app is stored.",
+                                        "format": "url",
+                                        "example": "https://some_bucket.s3.amazonaws.com/path/to/app/version/"
+                                    },
+                                    "manifest": {
+                                        "type": "string",
+                                        "description": "Content of the manifest YAML file, as Base64-encoded string.",
+                                        "format": "byte",
+                                        "example": 

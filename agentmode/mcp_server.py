@@ -56,16 +56,17 @@ async def setup_api_connection(connection_name: str, connection: dict, mcp: Fast
         api_connection = type(f"{connection_name}APIConnection", (APIConnection,), {'name': connection_name})() # define the APIConnection class dynamically
         
         # get the API information from api/connectors/{connection_name}.toml or .json
-        api_info = benedict.from_toml(f"api/connectors/{connection_name}.json")
+        api_info = benedict.from_json(os.path.join(os.path.dirname(__file__), f"api/connectors/{connection_name}.json"))
         if not api_info:
             logger.error(f"Failed to load API information for {connection_name}")
             return None
+        #logger.info(f"Loaded API information for {connection_name}: {api_info}")
         
         # Create the APIConnection instance
         api_connection = APIConnection.create(
             connection_name, 
-            mcp_resources=api_info.get("mcp_resources", []),
-            mcp_tools=api_info.get("mcp_tools", []),
+            mcp_resources=api_info.get("resources", []),
+            mcp_tools=api_info.get("tools", []),
             auth_type=connection.get("authentication_type"), # comes from the form
             credentials={
                 "username": connection.get("username"),
@@ -78,7 +79,7 @@ async def setup_api_connection(connection_name: str, connection: dict, mcp: Fast
 
         api_connection.generate_mcp_resources_and_tools(mcp, connection_name_counter)
     except Exception as e:
-        logger.error(f"Error setting up API connection: {e}")
+        logger.error(e, exc_info=True)
         return None
 
 @asynccontextmanager
@@ -95,11 +96,11 @@ async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
     for connection in connections:
         logger.info(f"Creating tool for connection: {connection['connector']}")
         connection_name = connection.pop('connector', None)
-        connector_type = connection.pop('connector_type', None)
+        connection_type = connection.pop('connection_type', None)
 
-        if connector_type=='database': # Establish the database connection and store it in the mapping
+        if connection_type=='database': # Establish the database connection and store it in the mapping
             await setup_database_connection(connection_name, connection, mcp, connection_name_counter)
-        elif connector_type=='api':
+        elif connection_type=='api':
             await setup_api_connection(connection_name, connection, mcp, connection_name_counter)
 
     try:
@@ -112,26 +113,6 @@ async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
 
 # Create an MCP server
 mcp = FastMCP("agentmode", lifespan=app_lifespan)
-
-# Add an addition tool
-@mcp.tool()
-def add(a: int, b: int) -> int:
-    """Add two numbers"""
-    logger.debug(f"Adding {a} and {b}")
-    return a + b
-
-@mcp.tool()
-async def fetch_weather(city: str) -> str:
-    """Fetch current weather for a city"""
-    async with httpx.AsyncClient() as client:
-        response = await client.get(f"https://api.weather.com/{city}")
-        return response.text
-
-# Add a dynamic greeting resource
-@mcp.resource("greeting://{name}")
-def get_greeting(name: str) -> str:
-    """Get a personalized greeting"""
-    return f"Hello, {name}!"
 
 @click.command()
 def cli():

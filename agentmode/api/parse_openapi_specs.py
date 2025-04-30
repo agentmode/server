@@ -16,11 +16,14 @@ async def process_connectors_toml(file_path):
                 # Call filter_api_calls with the openapi_specification
                 openapi_spec_url = item.get('openapi_spec_url')
                 if openapi_spec_url:
-                    logger.info(f"Processing API: {item.get('name')}")
-                    # Assuming openapi_spec is a list of API calls
-                    # Replace with actual fetching/parsing logic if needed
-                    converter = OpenAPIToMCPConverter(item.get('name'), openapi_spec_url=openapi_spec_url, filter_to_relevant_api_methods=False)
-                    await converter.run_pipeline()
+                    try:
+                        logger.info(f"Processing API: {item.get('name')}")
+                        # Assuming openapi_spec is a list of API calls
+                        # Replace with actual fetching/parsing logic if needed
+                        converter = OpenAPIToMCPConverter(item.get('name'), openapi_spec_url=openapi_spec_url, filter_to_relevant_api_methods=False)
+                        await converter.run_pipeline()
+                    except Exception as e:
+                        logger.error(f"Error processing API {item.get('name')}: {e}")
 
 if __name__ == "__main__":
     # Path to the connectors.toml file
