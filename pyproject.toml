@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 keywords = ["mcp", "ai"]
 dependencies = [
+    "asyncpg>=0.30.0",
     "click>=8.1.8",
     "gradio>=5.25.2",
     "greenlet>=3.2.0",
@@ -16,6 +17,7 @@ dependencies = [
     "sqlalchemy>=2.0.40",
     "sqlglot[rs]>=26.16.0",
     "starlette>=0.46.2",
+    "uvicorn>=0.34.1",
 ]
 
 [project.scripts]

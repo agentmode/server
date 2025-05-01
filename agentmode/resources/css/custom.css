@@ -1,7 +1,21 @@
+.column
+{
+    
+}
+
 /* Add custom CSS for Gradio elements */
+.logo
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 1 / 1; /* Ensures the height is equal to the width */
+    width: 100%;
+}
+
 .logo img {
-    max-width: 100px;
-    max-height: 100px;
-    object-fit: contain;
-    margin: auto;
+    display: block;
+    width: 100%;
+    height: auto;
+    padding: 20px; /* Added padding */
 }

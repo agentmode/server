@@ -10,6 +10,7 @@ from agentmode.package_manager import install_dependencies
 # Load connectors from a TOML file
 CONNECTORS_FILE = "connectors.toml"
 CONNECTIONS_FILE = "connections.toml"
+CARDS_PER_ROW = 8
 
 # beyond these standard forms, some connectors have their own defined in connectors.toml
 FORM_TYPES = {
@@ -50,11 +51,11 @@ def load_connectors():
     else:
         connections = benedict({"connections": []})
         connections.to_toml(filepath=CONNECTIONS_FILE)
-    # flatten the connectors data so we can look up connectors by name
+    # flatten the connectors data so we can look up connectors by label or name
     list_connectors = {}
     for group_name, group_connectors in connectors.items():
         for connector_info in group_connectors:
-            list_connectors[connector_info.get("name")] = connector_info
+            list_connectors[connector_info.get("label", connector_info.get("name"))] = connector_info
     logger.debug(f"Loaded connectors: {connectors}")
     logger.debug(f"Loaded connections: {connections}")
     return connectors, connections, list_connectors
@@ -75,30 +76,30 @@ def create_group(group_name, connectors, type, state):
     if type == 'connections':
         global existing_connection_counter
         existing_connection_counter = 0
-    # iterate through the list of connectors in groups of 4
-    for i in range(0, len(connectors), 4):
-        create_row(connectors[i:i+4], type, state)
+    # iterate through the list of connectors in groups of CARDS_PER_ROW
+    for i in range(0, len(connectors), CARDS_PER_ROW):
+        create_row(connectors[i:i+CARDS_PER_ROW], type, state)
 
 def create_row(data, type, state):
     """Create a row for each connector."""
     with gr.Row() as row:
         for connector in data:
             create_card(connector, type, state)
-        if len(data) < 4:
-            for _ in range(4 - len(data)):
-                with gr.Column():
+        if len(data) < CARDS_PER_ROW:
+            for _ in range(CARDS_PER_ROW - len(data)):
+                with gr.Column(min_width=200, elem_classes=["column"]): # will wrap if not enough space
                     pass
     return row
 
 def create_card(input, type, state):
     """Create a card for each connector."""
     global list_connectors
-    with gr.Column() as card:
+    with gr.Column(min_width=200, elem_classes=["column"]) as card:
         if type == 'connections':
             global existing_connection_counter
             counter = copy.deepcopy(existing_connection_counter)
-            gr.Markdown(input.get("connector"))
             connector = list_connectors.get(input.get("connector"))
+            gr.Markdown(connector.get("label", connector.get("name")))
             if connector:
                 logger.debug(f"adding existing connection for {input.get('connector')} with index {existing_connection_counter}")
                 gr.Image(value=connector.get("logo"), show_label=False, interactive=False, scale=1, elem_classes=["logo"]).select(lambda: event_handler(connector, counter), None, state)
@@ -107,13 +108,13 @@ def create_card(input, type, state):
                 logger.error(f"Connector {input.get('connector')} not found in connectors data")
         elif type == 'connectors':
             connector = input
-            gr.Markdown(connector.get("name"))
+            gr.Markdown(connector.get("label", connector.get("name")))
             gr.Image(value=connector.get("logo"), show_label=False, interactive=False, scale=1, elem_classes=["logo"]).select(lambda: event_handler(connector, None), None, state)
     return card
     
 def create_gradio_interface():
     """Create the Gradio interface."""
-    with gr.Blocks(title='agentmode', css_paths=['resources/css/custom.css']) as demo:
+    with gr.Blocks(title='agentmode', css_paths=['resources/css/custom.css'], theme=gr.themes.Soft()) as demo:
         gr.Markdown("# Connector Management")
 
         state = gr.State('connectors')
