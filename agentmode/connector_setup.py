@@ -1,11 +1,11 @@
 import os
 import copy
-import uuid
 
 import gradio as gr
 from benedict import benedict
 
 from agentmode.logs import logger
+from agentmode.package_manager import install_dependencies
 
 # Load connectors from a TOML file
 CONNECTORS_FILE = "connectors.toml"
@@ -153,6 +153,11 @@ def handle_submit(*args, **kwargs):
             connections_data['connections'].append(form_data)
         # save the updated connections data to the TOML file
         connections_data.to_toml(filepath=CONNECTIONS_FILE)
+
+        # install any required python packages
+        if package_names := selected_connector.get("requires_python_packages"):
+            logger.info(f"Installing packages: {package_names}")
+            install_dependencies(package_names)
     return 'connectors'
 
 def event_handler(connector, connection_index):

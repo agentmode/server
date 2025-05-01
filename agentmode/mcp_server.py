@@ -3,19 +3,28 @@ from contextlib import asynccontextmanager
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from typing import Any
-import json
+import multiprocessing
 from collections import defaultdict
 
+import uvicorn
+from uvicorn import Config, Server
+from starlette.applications import Starlette
+from starlette.routing import Mount, Route
+from starlette.responses import (
+	PlainTextResponse,
+)
 import click
 from benedict import benedict
-import httpx
 from mcp.server.fastmcp import FastMCP, Context
+import gradio as gr
 
 from agentmode.logs import logger
 from agentmode.database import DatabaseConnection
 from agentmode.api.api_connection import APIConnection
+from agentmode.connector_setup import create_gradio_interface
 
 CONNECTIONS_FILE = "connections.toml"
+PORT = os.getenv("PORT", 13000)
 # to debug: uv run mcp dev mcp_server.py
 
 """
@@ -85,6 +94,8 @@ async def setup_api_connection(connection_name: str, connection: dict, mcp: Fast
 @asynccontextmanager
 async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
     """Manage application lifecycle with type-safe context"""
+    web_server.start()
+    
     connections = None
     if os.path.exists(CONNECTIONS_FILE):
         connections = benedict.from_toml(CONNECTIONS_FILE)
@@ -110,14 +121,53 @@ async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
         for db in connection_mapping.values():
             await db.disconnect()
         connection_mapping.clear()
+        web_server.stop()
+
+async def ping(request):
+	"""
+	return 200 OK
+	"""
+	return PlainTextResponse("OK", status_code=200)
 
 # Create an MCP server
 mcp = FastMCP("agentmode", lifespan=app_lifespan)
 
+connectors_grid = create_gradio_interface()
+app = Starlette(
+    routes=[
+        Route("/health_check", endpoint=ping, methods=['GET']),
+    ],
+    debug=True,
+)
+app = gr.mount_gradio_app(app, connectors_grid, path="/setup")
+
+class UvicornServer(multiprocessing.Process):
+
+    def __init__(self, config: Config):
+        super().__init__()
+        self.server = Server(config=config)
+        self.config = config
+
+    def stop(self):
+        self.terminate()
+
+    def run(self, *args, **kwargs):
+        try:
+            self.server.run()
+        except Exception as e:
+            logger.error(f"Error running server: {e}")
+
+config = Config("mcp_server:app", host="0.0.0.0", port=PORT, log_config="resources/log_config.json")
+web_server = UvicornServer(config=config)
+
 @click.command()
 def cli():
-    """Prints a greeting."""
-    click.echo("MCP server is running!")
+    """
+    Command line interface to run the MCP server.
+    SSE MCP servers would be nice, but VS Code doesn't support a start command for them yet
+    so we use stdio
+    """
+    click.echo("starting MCP server...")
     mcp.run()
 
 if __name__ == "__main__":
