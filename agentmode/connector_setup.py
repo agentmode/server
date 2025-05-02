@@ -114,7 +114,7 @@ def create_card(input, type, state):
     
 def create_gradio_interface():
     """Create the Gradio interface."""
-    with gr.Blocks(title='agentmode', css_paths=['resources/css/custom.css'], theme=gr.themes.Soft()) as demo:
+    with gr.Blocks(title='agentmode', css_paths=['resources/css/custom.css']) as demo:
         gr.Markdown("# Connector Management")
 
         state = gr.State('connectors')

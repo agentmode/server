@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from typing import Any
 import multiprocessing
 from collections import defaultdict
+import asyncio
+import signal
 
 import uvicorn
 from uvicorn import Config, Server
@@ -94,8 +96,6 @@ async def setup_api_connection(connection_name: str, connection: dict, mcp: Fast
 @asynccontextmanager
 async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
     """Manage application lifecycle with type-safe context"""
-    web_server.start()
-    
     connections = None
     if os.path.exists(CONNECTIONS_FILE):
         connections = benedict.from_toml(CONNECTIONS_FILE)
@@ -121,7 +121,6 @@ async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
         for db in connection_mapping.values():
             await db.disconnect()
         connection_mapping.clear()
-        web_server.stop()
 
 async def ping(request):
 	"""
@@ -141,34 +140,39 @@ app = Starlette(
 )
 app = gr.mount_gradio_app(app, connectors_grid, path="/setup")
 
-class UvicornServer(multiprocessing.Process):
-
-    def __init__(self, config: Config):
-        super().__init__()
-        self.server = Server(config=config)
-        self.config = config
-
-    def stop(self):
-        self.terminate()
-
-    def run(self, *args, **kwargs):
-        try:
-            self.server.run()
-        except Exception as e:
-            logger.error(f"Error running server: {e}")
-
 config = Config("mcp_server:app", host="0.0.0.0", port=PORT, log_config="resources/log_config.json")
-web_server = UvicornServer(config=config)
+server = uvicorn.Server(config)
 
 @click.command()
 def cli():
     """
     Command line interface to run the MCP server.
     SSE MCP servers would be nice, but VS Code doesn't support a start command for them yet
-    so we use stdio
+    so we use stdio.
+    while mcp has a way to expose custom HTTP endpoints via their 'custom_routes', that uvicorn
+    server only runs if you're using SSE,
+    so we have to run uvicorn ourselves.
     """
-    click.echo("starting MCP server...")
-    mcp.run()
+    async def start_server():
+        click.echo("starting MCP server...")
+        await asyncio.gather(
+            server.serve(),
+            mcp.run_stdio_async()  # Directly call the async function to avoid nested event loops
+        )
+
+    def handle_exit(signum, frame):
+        click.echo("Shutting down MCP server...")
+        asyncio.get_event_loop().stop()
+
+    # Register signal handlers for graceful shutdown
+    signal.signal(signal.SIGINT, handle_exit)
+    signal.signal(signal.SIGTERM, handle_exit)
+
+    # Use asyncio.run only if no event loop is already running
+    if not asyncio.get_event_loop().is_running():
+        asyncio.run(start_server())
+    else:
+        asyncio.create_task(start_server())  # Use create_task if an event loop is already running
 
 if __name__ == "__main__":
     cli()
