@@ -66,6 +66,7 @@ selected_form_type = None
 selected_connection_index = None
 existing_connection_counter = 0
 selected_authentication_type = None
+progress_bar = None
 server_url = None # for API form persistence
 port = None # for API form persistence
 form_field_keys = []
@@ -136,7 +137,7 @@ def create_gradio_interface():
 
 def handle_submit(*args, **kwargs):
     logger.info(f"Form submitted with args: {args}, kwargs: {kwargs}")
-    global selected_connector, selected_connection_index, selected_form_type, connections_data, form_field_keys
+    global selected_connector, selected_connection_index, selected_form_type, connections_data, form_field_keys, progress_bar
 
     # zip the form fields with their values
     form_data = dict(zip(form_field_keys, args))
@@ -158,7 +159,13 @@ def handle_submit(*args, **kwargs):
         # install any required python packages
         if package_names := selected_connector.get("requires_python_packages"):
             logger.info(f"Installing packages: {package_names}")
-            install_dependencies(package_names)
+            # make the progress bar visible
+            gr.Warning('Installing package dependencies...', duration=5)
+
+            successfull_install = install_dependencies(package_names)
+            if not successfull_install:
+                # display an alert in gradio if the installation fails
+                raise gr.Error("Failed to install dependencies, please see the logs", duration=5)
     return 'connectors'
 
 def event_handler(connector, connection_index):
@@ -171,7 +178,7 @@ def event_handler(connector, connection_index):
 
 def create_form(state):
     logger.debug(f"state in form: {state.value}")
-    global selected_connector, selected_connection_index, selected_form_type, selected_authentication_type, form_field_keys, server_url, port
+    global selected_connector, selected_connection_index, selected_form_type, selected_authentication_type, form_field_keys, server_url, port, progress_bar
     form_field_keys = []
     if selected_form_type == 'custom':
         form_fields = selected_connector.get('form_fields')

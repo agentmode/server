@@ -162,7 +162,11 @@ def cli():
 
     def handle_exit(signum, frame):
         click.echo("Shutting down MCP server...")
-        asyncio.get_event_loop().stop()
+        loop = asyncio.get_event_loop()
+        tasks = asyncio.all_tasks(loop)
+        for task in tasks:
+            task.cancel()
+        loop.stop()
 
     # Register signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, handle_exit)
