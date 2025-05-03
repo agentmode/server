@@ -6,12 +6,13 @@ AgentMode is an all-in-one Model Context Protocol (MCP) server that connects you
 
 ## Installation 👨‍💻
 
+### with VS code
 1. Install our [VS Code extension](https://marketplace.visualstudio.com/items?itemName=agentmode.agentmode).
 2. Click the 'Install' button next to the agentmode extension.
 3. Start the MCP server via the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS), then type in 'MCP', then select 'MCP: List Servers' and click on agentmode.
 4. Click on the 'AgentMode' text in the bottom-right corner of VS Code to open a browser tab, and sign in.
 
--- without VS Code
+### without VS code (Python package)
 1. Open the terminal and install uv with `curl -LsSf https://astral.sh/uv/install.sh | sh`
 2. `uv init`
 3. `uv add agentmode`
@@ -28,7 +29,7 @@ AgentMode leverages the [Model Context Protocol](https://modelcontextprotocol.io
 
 ## Connections 🔌
 
-(screenshot)
+![connections setup!](https://cdn.hashnode.com/res/hashnode/image/upload/v1746249095886/cf437270-7eb4-4e5a-ac19-7165cdcd2eeb.png?auto=compress,format&format=webp "AgentMode connections")
 
 AgentMode supports a wide range of connections, including:
 - **Databases**: MySQL, PostgreSQL, etc.
