@@ -1,17 +1,23 @@
-# AgentMode VS Code Extension
+# AgentMode ✨
 
-AgentMode is an all-in-one Model Context Protocol (MCP) server that connects your coding AI to databases, data warehouses, data pipelines, cloud services, and more. This extension is designed to streamline your development workflow by providing seamless integration with various data and cloud platforms.
+AgentMode is an all-in-one Model Context Protocol (MCP) server that connects your coding AI to dozens of databases, data warehouses, data pipelines, cloud services, and more. This extension is designed to streamline your development workflow by providing seamless integration with various data and cloud platforms.
 
-## Installation
+![flow diagram!](https://cdn.hashnode.com/res/hashnode/image/upload/v1746248830909/723435d9-255c-43a2-a2a2-1691a161e45f.webp "AgentMode flow diagram")
 
-1. Open Visual Studio Code.
-2. Go to the Extensions view by clicking on the Extensions icon in the Activity Bar on the side of the window.
-3. In the `Search Extensions in Marketplace` textbox, type in 'agentmode' and click Enter.
-5. Click the 'Install' button next to the agentmode extension.
-6. Start the MCP server via the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS), then type in 'MCP', then select 'MCP: List Servers' and click on agentmode.
-7. Click on the 'AgentMode' text in the bottom-right corner of VS Code to open a browser tab, and sign in.
+## Installation 👨‍💻
 
-## MCP (Model Context Protocol)
+1. Install our [VS Code extension](https://marketplace.visualstudio.com/items?itemName=agentmode.agentmode).
+2. Click the 'Install' button next to the agentmode extension.
+3. Start the MCP server via the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS), then type in 'MCP', then select 'MCP: List Servers' and click on agentmode.
+4. Click on the 'AgentMode' text in the bottom-right corner of VS Code to open a browser tab, and sign in.
+
+-- without VS Code
+1. Open the terminal and install uv with `curl -LsSf https://astral.sh/uv/install.sh | sh`
+2. `uv init`
+3. `uv add agentmode`
+4. `uv run agentmode`
+
+## MCP (Model Context Protocol) 🌐
 
 AgentMode leverages the [Model Context Protocol](https://modelcontextprotocol.io) (MCP) to enable your coding AI to:
 - Access and query databases and data warehouses.
@@ -20,13 +26,15 @@ AgentMode leverages the [Model Context Protocol](https://modelcontextprotocol.io
 - See logs from your production services.
 - Connect to cloud services for storage, computation, and more.
 
-## Connections
+## Connections 🔌
+
+(screenshot)
 
 AgentMode supports a wide range of connections, including:
 - **Databases**: MySQL, PostgreSQL, etc.
 - **Data Warehouses**: Snowflake, BigQuery, Redshift, etc.
 - **Data Pipelines**: Airflow, Prefect, etc.
-- **Cloud Services**: AWS, Azure, Google Cloud, etc.
+- **Cloud Services**: AWS, Azure, Google Cloud, etc. (coming soon!)
 
 To configure connections, follow these steps:
 1. Start the MCP server and go to `http://localhost:13000/setup`
@@ -34,8 +42,11 @@ To configure connections, follow these steps:
 3. Fill out the connection details and credentials (all credentials are stored locally on your machine).
 4. Any required dependencies will be installed on-the-fly.
 
-## Help
+## Help 🛟
 
 If you encounter any issues or have questions, you can:
 - Open an issue in the [GitHub repository](https://github.com/agentmode/extension).
-- Chat with us on our [Discord server]().
+- Chat with us on our [Discord server](https://discord.gg/qwDjr29q).
+
+## Contributing 💬
+- add more connectors & tests
