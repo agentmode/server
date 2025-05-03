@@ -1,7 +1,7 @@
 [project]
 name = "agentmode"
-version = "0.1.4"
-description = "MCP server for VS code"
+version = "0.1.8"
+description = "All-in-1 MCP server for developers"
 readme = "README.md"
 requires-python = ">=3.13"
 keywords = ["mcp", "ai"]
@@ -12,6 +12,7 @@ dependencies = [
     "httpx>=0.28.1",
     "mcp[cli]>=1.6.0",
     "pandas>=2.2.3",
+    "platformdirs>=4.3.7",
     "python-benedict[toml]>=0.34.1",
     "sqlalchemy>=2.0.40",
     "sqlglot[rs]>=26.16.0",
@@ -53,4 +54,13 @@ database = [
     "sqlalchemy-cockroachdb>=2.0.2",
     "sqlalchemy-hana>=3.0.2",
     "teradatasqlalchemy>=20.0.0.4",
+]
+
+[tool.hatch.build]
+include = [
+  "agentmode/**/*.py",  # Include all Python source files
+  "agentmode/connectors.toml", 
+  "agentmode/api/connectors/*.json", 
+  "agentmode/resources/**/*", 
+  "agentmode/resources/log_config.json"
 ]

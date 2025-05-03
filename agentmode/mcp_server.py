@@ -3,10 +3,10 @@ from contextlib import asynccontextmanager
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from typing import Any
-import multiprocessing
 from collections import defaultdict
 import asyncio
 import signal
+import importlib.resources
 
 import uvicorn
 from uvicorn import Config, Server
@@ -19,13 +19,15 @@ import click
 from benedict import benedict
 from mcp.server.fastmcp import FastMCP, Context
 import gradio as gr
+import platformdirs
 
 from agentmode.logs import logger
 from agentmode.database import DatabaseConnection
 from agentmode.api.api_connection import APIConnection
 from agentmode.connector_setup import create_gradio_interface
 
-CONNECTIONS_FILE = "connections.toml"
+HOME_DIRECTORY = platformdirs.user_data_dir('agentmode', ensure_exists=True)
+CONNECTIONS_FILE = os.path.join(HOME_DIRECTORY, "connections.toml")
 PORT = os.getenv("PORT", 13000)
 # to debug: uv run mcp dev mcp_server.py
 
@@ -67,7 +69,8 @@ async def setup_api_connection(connection_name: str, connection: dict, mcp: Fast
         api_connection = type(f"{connection_name}APIConnection", (APIConnection,), {'name': connection_name})() # define the APIConnection class dynamically
         
         # get the API information from api/connectors/{connection_name}.toml or .json
-        api_info = benedict.from_json(os.path.join(os.path.dirname(__file__), f"api/connectors/{connection_name}.json"))
+        connectors_path = importlib.resources.files('agentmode.api.connectors').joinpath(f"{connection_name}.json")
+        api_info = benedict.from_json(str(connectors_path))
         if not api_info:
             logger.error(f"Failed to load API information for {connection_name}")
             return None
@@ -140,7 +143,8 @@ app = Starlette(
 )
 app = gr.mount_gradio_app(app, connectors_grid, path="/setup")
 
-config = Config("mcp_server:app", host="0.0.0.0", port=PORT, log_config="resources/log_config.json")
+log_config_file = str(importlib.resources.files('agentmode').joinpath('resources/log_config.json'))
+config = Config("agentmode.mcp_server:app", host="0.0.0.0", port=PORT, log_config=log_config_file)
 server = uvicorn.Server(config)
 
 @click.command()

@@ -1,15 +1,19 @@
 import os
 import copy
+import importlib.resources
 
 import gradio as gr
 from benedict import benedict
+import platformdirs
 
 from agentmode.logs import logger
 from agentmode.package_manager import install_dependencies
 
 # Load connectors from a TOML file
-CONNECTORS_FILE = "connectors.toml"
-CONNECTIONS_FILE = "connections.toml"
+connectors_path = importlib.resources.files('agentmode').joinpath('connectors.toml')
+CONNECTORS_FILE = str(connectors_path)
+HOME_DIRECTORY = platformdirs.user_data_dir('agentmode', ensure_exists=True)
+CONNECTIONS_FILE = os.path.join(HOME_DIRECTORY, "connections.toml")
 CARDS_PER_ROW = 8
 
 # beyond these standard forms, some connectors have their own defined in connectors.toml
@@ -102,20 +106,23 @@ def create_card(input, type, state):
             connector = list_connectors.get(input.get("connector"))
             gr.Markdown(connector.get("label", connector.get("name")))
             if connector:
+                image_file_path = str(importlib.resources.files('agentmode').joinpath(connector.get("logo")))
                 logger.debug(f"adding existing connection for {input.get('connector')} with index {existing_connection_counter}")
-                gr.Image(value=connector.get("logo"), show_label=False, interactive=False, scale=1, elem_classes=["logo"]).select(lambda: event_handler(connector, counter), None, state)
+                gr.Image(value=image_file_path, show_label=False, interactive=False, scale=1, elem_classes=["logo"]).select(lambda: event_handler(connector, counter), None, state)
                 existing_connection_counter += 1
             else:
                 logger.error(f"Connector {input.get('connector')} not found in connectors data")
         elif type == 'connectors':
             connector = input
             gr.Markdown(connector.get("label", connector.get("name")))
-            gr.Image(value=connector.get("logo"), show_label=False, interactive=False, scale=1, elem_classes=["logo"]).select(lambda: event_handler(connector, None), None, state)
+            image_file_path = str(importlib.resources.files('agentmode').joinpath(connector.get("logo")))
+            gr.Image(value=image_file_path, show_label=False, interactive=False, scale=1, elem_classes=["logo"]).select(lambda: event_handler(connector, None), None, state)
     return card
     
 def create_gradio_interface():
     """Create the Gradio interface."""
-    with gr.Blocks(title='agentmode', css_paths=['resources/css/custom.css']) as demo:
+    css_file_path = str(importlib.resources.files('agentmode').joinpath('resources/css/custom.css'))
+    with gr.Blocks(title='agentmode', css_paths=[css_file_path]) as demo:
         gr.Markdown("# Connector Management")
 
         state = gr.State('connectors')
