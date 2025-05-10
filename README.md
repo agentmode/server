@@ -46,6 +46,7 @@ To configure connections, follow these steps:
 ## Help 🛟
 
 If you encounter any issues or have questions, you can:
+- See the [documentation](https://docs.agentmode.app/default-guide/installation/server-installation).
 - Open an issue in the [GitHub repository](https://github.com/agentmode/extension).
 - Chat with us on our [Discord server](https://discord.gg/qwDjr29q).
 
