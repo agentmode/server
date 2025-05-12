@@ -197,11 +197,21 @@ authentication_form_type = "api"
 openapi_spec_url = "https://api.prefect.cloud/api/openapi.json"
 
 [["Source Control"]]
-name = "Github"
+name = "GitHub"
 logo = "resources/images/github.png"
 connection_type = "api"
 authentication_form_type = "api"
+default_authentication_method = "Bearer Token"
 openapi_spec_url = "https://raw.githubusercontent.com/github/rest-api-description/refs/heads/main/descriptions/api.github.com/api.github.com.json"
+filter_to_operator_ids = ["search/code", "repos/get-content"]
+decode_responses = {"repos/get_content" = "content"}
+["Source Control".filter_responses]
+"search/code" = [
+        "items[].repository.html_url", 
+        "items[].repository.full_name", 
+        "items[].path", 
+        "items[].url"
+]
 
 [["Source Control"]]
 name = "Gitlab"

@@ -1,0 +1,3247 @@
+{
+    "resources": [
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/alerts",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "active",
+                    "in": "query",
+                    "description": "List only active alerts (use /alerts/active endpoints instead)",
+                    "deprecated": true,
+                    "schema": {
+                        "type": "boolean"
+                    }
+                },
+                {
+                    "$ref": "#/components/parameters/QueryStartTime"
+                },
+                {
+                    "$ref": "#/components/parameters/QueryEndTime"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertStatus"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertMessageType"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertEventName"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertCode"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertArea"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertPoint"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertRegion"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertRegionType"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertZone"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertUrgency"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertSeverity"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertCertainty"
+                },
+                {
+                    "$ref": "#/components/parameters/Limit"
+                },
+                {
+                    "$ref": "#/components/parameters/PaginationCursor"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/AlertCollection"
+                },
+                "301": {
+                    "description": "Certain common queries may be redirected to discrete URLs"
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns all alerts",
+            "tags": [],
+            "operationId": "alerts_query"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/alerts/active",
+            "method": "get",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/AlertStatus"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertMessageType"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertEventName"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertCode"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertArea"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertPoint"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertRegion"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertRegionType"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertZone"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertUrgency"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertSeverity"
+                },
+                {
+                    "$ref": "#/components/parameters/AlertCertainty"
+                },
+                {
+                    "$ref": "#/components/parameters/Limit"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/AlertCollection"
+                },
+                "301": {
+                    "description": "Certain common queries may be redirected to discrete URLs"
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns all currently active alerts",
+            "tags": [],
+            "operationId": "alerts_active"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/alerts/active/count",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "A data structure showing the counts of active alerts broken down by various categories",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "total": {
+                                        "minimum": 0,
+                                        "type": "integer",
+                                        "description": "The total number of active alerts"
+                                    },
+                                    "land": {
+                                        "minimum": 0,
+                                        "type": "integer",
+                                        "description": "The total number of active alerts affecting land zones"
+                                    },
+                                    "marine": {
+                                        "minimum": 0,
+                                        "type": "integer",
+                                        "description": "The total number of active alerts affecting marine zones"
+                                    },
+                                    "regions": {
+                                        "type": "object",
+                                        "description": "Active alerts by marine region",
+                                        "additionalProperties": {
+                                            "minimum": 1,
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "areas": {
+                                        "type": "object",
+                                        "description": "Active alerts by area (state/territory)",
+                                        "additionalProperties": {
+                                            "minimum": 1,
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "zones": {
+                                        "type": "object",
+                                        "description": "Active alerts by NWS public zone or county code",
+                                        "additionalProperties": {
+                                            "minimum": 1,
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns info on the number of active alerts",
+            "tags": [],
+            "operationId": "alerts_active_count"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/alerts/active/zone/{zoneId}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/AlertCollection"
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns active alerts for the given NWS public zone or county",
+            "tags": [],
+            "operationId": "alerts_active_zone"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/alerts/active/area/{area}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/AlertCollection"
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns active alerts for the given area (state or marine area)",
+            "tags": [],
+            "operationId": "alerts_active_area"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/alerts/active/region/{region}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/AlertCollection"
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns active alerts for the given marine region",
+            "tags": [],
+            "operationId": "alerts_active_region"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/alerts/types",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "A list of recognized event types",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "eventTypes": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "A list of recognized event types"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of alert types",
+            "tags": [],
+            "operationId": "alerts_types"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/alerts/{id}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "An alert record",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/GeoJsonFeature"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "properties": {
+                                                "$ref": "#/components/schemas/Alert"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "@graph": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/Alert"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "application/cap+xml": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "x-url-content-negotiation-extensions": {
+                        "json": "application/geo+json",
+                        "cap": "application/cap+xml"
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a specific alert",
+            "tags": [],
+            "operationId": "alerts_single"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/aviation/cwsus/{cwsuId}",
+            "method": "get",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/NWSCenterWeatherServiceUnitId"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Office"
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns metadata about a Center Weather Service Unit",
+            "tags": [],
+            "operationId": "cwsu"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/aviation/cwsus/{cwsuId}/cwas",
+            "method": "get",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/NWSCenterWeatherServiceUnitId"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/GeoJsonFeatureCollection"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "features": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "properties": {
+                                                            "$ref": "#/components/schemas/CenterWeatherAdvisory"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of Center Weather Advisories from a CWSU",
+            "tags": [],
+            "operationId": "cwas"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/aviation/cwsus/{cwsuId}/cwas/{date}/{sequence}",
+            "method": "get",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/NWSCenterWeatherServiceUnitId"
+                },
+                {
+                    "$ref": "#/components/parameters/Date"
+                },
+                {
+                    "name": "sequence",
+                    "in": "path",
+                    "description": "Sequence number",
+                    "required": true,
+                    "schema": {
+                        "minimum": 100,
+                        "type": "integer"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/GeoJsonFeature"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "properties": {
+                                                "$ref": "#/components/schemas/CenterWeatherAdvisory"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "application/vnd.noaa.uswx+xml": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of Center Weather Advisories from a CWSU",
+            "tags": [],
+            "operationId": "cwa"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/aviation/sigmets",
+            "method": "get",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/QueryStartTime"
+                },
+                {
+                    "$ref": "#/components/parameters/QueryEndTime"
+                },
+                {
+                    "$ref": "#/components/parameters/QueryDate"
+                },
+                {
+                    "name": "atsu",
+                    "in": "query",
+                    "description": "ATSU identifier",
+                    "schema": {
+                        "pattern": "^[A-Z]{3,4}$",
+                        "type": "string",
+                        "description": "ATSU Identifier"
+                    }
+                },
+                {
+                    "name": "sequence",
+                    "in": "query",
+                    "description": "SIGMET sequence number",
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/GeoJsonFeatureCollection"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "features": {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/SigmetGeoJson"
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of SIGMET/AIRMETs",
+            "tags": [],
+            "operationId": "sigmetQuery"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/aviation/sigmets/{atsu}",
+            "method": "get",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/ATSUIdentifier"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/GeoJsonFeatureCollection"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "features": {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/SigmetGeoJson"
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of SIGMET/AIRMETs for the specified ATSU",
+            "tags": [],
+            "operationId": "sigmetsByATSU"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/aviation/sigmets/{atsu}/{date}",
+            "method": "get",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/ATSUIdentifier"
+                },
+                {
+                    "$ref": "#/components/parameters/Date"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/GeoJsonFeatureCollection"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "features": {
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/SigmetGeoJson"
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of SIGMET/AIRMETs for the specified ATSU for the specified date",
+            "tags": [],
+            "operationId": "sigmetsByATSUByDate"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/aviation/sigmets/{atsu}/{date}/{time}",
+            "method": "get",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/ATSUIdentifier"
+                },
+                {
+                    "$ref": "#/components/parameters/Date"
+                },
+                {
+                    "$ref": "#/components/parameters/Time"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/GeoJsonFeature"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "properties": {
+                                                "$ref": "#/components/schemas/Sigmet"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "application/vnd.noaa.uswx+xml": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a specific SIGMET/AIRMET",
+            "tags": [],
+            "operationId": "sigmet"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/glossary",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "A set of glossary terms",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "glossary": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "term": {
+                                                    "type": "string",
+                                                    "description": "The term being defined"
+                                                },
+                                                "definition": {
+                                                    "type": "string",
+                                                    "description": "A definition for the term"
+                                                }
+                                            }
+                                        },
+                                        "description": "A list of glossary terms"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns glossary terms",
+            "tags": [],
+            "operationId": "glossary"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/gridpoints/{wfo}/{x},{y}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "Gridpoint forecast data",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/GeoJsonFeature"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "properties": {
+                                                "$ref": "#/components/schemas/Gridpoint"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Gridpoint"
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns raw numerical forecast data for a 2.5km grid area",
+            "tags": [],
+            "operationId": "gridpoint"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/gridpoints/{wfo}/{x},{y}/forecast",
+            "method": "get",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/GridpointForecastFeatureFlags"
+                },
+                {
+                    "$ref": "#/components/parameters/GridpointForecastUnits"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/GridpointForecast"
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a textual forecast for a 2.5km grid area",
+            "tags": [],
+            "operationId": "gridpoint_forecast"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/gridpoints/{wfo}/{x},{y}/forecast/hourly",
+            "method": "get",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/GridpointForecastFeatureFlags"
+                },
+                {
+                    "$ref": "#/components/parameters/GridpointForecastUnits"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/GridpointForecast"
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a textual hourly forecast for a 2.5km grid area",
+            "tags": [],
+            "operationId": "gridpoint_forecast_hourly"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/gridpoints/{wfo}/{x},{y}/stations",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/ObservationStationCollection"
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of observation stations usable for a given 2.5km grid area",
+            "tags": [],
+            "operationId": "gridpoint_stations"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/icons/{set}/{timeOfDay}/{first}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "image/png": {
+                            "schema": {
+                                "type": "string",
+                                "format": "binary"
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a forecast icon. Icon services in API are deprecated.",
+            "tags": [],
+            "operationId": "icons"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/icons/{set}/{timeOfDay}/{first}/{second}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "image/png": {
+                            "schema": {
+                                "type": "string",
+                                "format": "binary"
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a forecast icon. Icon services in API are deprecated.",
+            "tags": [],
+            "operationId": "iconsDualCondition"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/icons",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "required": [
+                                    "icons"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "icons": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "required": [
+                                                "description"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "description": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "additionalProperties": false
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of icon codes and textual descriptions. Icon services in API are deprecated.",
+            "tags": [],
+            "operationId": "icons_summary"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/thumbnails/satellite/{area}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "An image file",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "image/jpeg": {
+                            "schema": {
+                                "type": "string",
+                                "format": "binary"
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a thumbnail image for a satellite region. Image services in API are deprecated.",
+            "tags": [],
+            "operationId": "satellite_thumbnails"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/stations/{stationId}/observations",
+            "method": "get",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/QueryStartTime"
+                },
+                {
+                    "$ref": "#/components/parameters/QueryEndTime"
+                },
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "description": "Limit",
+                    "schema": {
+                        "maximum": 500,
+                        "minimum": 1,
+                        "type": "integer"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/ObservationCollection"
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of observations for a given station",
+            "tags": [],
+            "operationId": "station_observation_list"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/stations/{stationId}/observations/latest",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "require_qc",
+                    "in": "query",
+                    "description": "Require QC",
+                    "schema": {
+                        "type": "boolean"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/Observation"
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns the latest observation for a station",
+            "tags": [],
+            "operationId": "station_observation_latest"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/stations/{stationId}/observations/{time}",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "time",
+                    "in": "path",
+                    "description": "Timestamp of requested observation",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/Observation"
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a single observation.",
+            "tags": [],
+            "operationId": "station_observation_time"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/stations/{stationId}/tafs",
+            "method": "get",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/ObservationStationId"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns Terminal Aerodrome Forecasts for the specified airport station.",
+            "tags": [],
+            "operationId": "tafs"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/stations/{stationId}/tafs/{date}/{time}",
+            "method": "get",
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/ObservationStationId"
+                },
+                {
+                    "$ref": "#/components/parameters/Date"
+                },
+                {
+                    "$ref": "#/components/parameters/Time"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "content": {
+                        "application/vnd.wmo.iwxxm+xml": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a single Terminal Aerodrome Forecast.",
+            "tags": [],
+            "operationId": "taf"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/stations",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "query",
+                    "description": "Filter by observation station ID",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "name": "state",
+                    "in": "query",
+                    "description": "Filter by state/marine area code",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AreaCode"
+                        }
+                    }
+                },
+                {
+                    "$ref": "#/components/parameters/Limit"
+                },
+                {
+                    "$ref": "#/components/parameters/PaginationCursor"
+                }
+            ],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/ObservationStationCollection"
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of observation stations.",
+            "tags": [],
+            "operationId": "obs_stations"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/stations/{stationId}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/GeoJsonFeature"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "properties": {
+                                                "$ref": "#/components/schemas/ObservationStation"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "application/ld+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ObservationStation"
+                                    },
+                                    {
+                                        "required": [
+                                            "@context",
+                                            "geometry"
+                                        ],
+                                        "type": "object",
+                                        "properties": {
+                                            "@context": {
+                                                "$ref": "#/components/schemas/JsonLdContext"
+                                            },
+                                            "geometry": {
+                                                "$ref": "#/components/schemas/GeometryString"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns metadata about a given observation station",
+            "tags": [],
+            "operationId": "obs_station"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/offices/{officeId}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "@type": {
+                                        "enum": [
+                                            "GovernmentOrganization"
+                                        ],
+                                        "type": "string"
+                                    },
+                                    "@id": {
+                                        "type": "string",
+                                        "format": "uri"
+                                    },
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "address": {
+                                        "type": "object",
+                                        "properties": {
+                                            "@type": {
+                                                "enum": [
+                                                    "PostalAddress"
+                                                ],
+                                                "type": "string"
+                                            },
+                                            "streetAddress": {
+                                                "type": "string"
+                                            },
+                                            "addressLocality": {
+                                                "type": "string"
+                                            },
+                                            "addressRegion": {
+                                                "type": "string"
+                                            },
+                                            "postalCode": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    },
+                                    "telephone": {
+                                        "type": "string"
+                                    },
+                                    "faxNumber": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "sameAs": {
+                                        "type": "string",
+                                        "format": "uri"
+                                    },
+                                    "nwsRegion": {
+                                        "type": "string"
+                                    },
+                                    "parentOrganization": {
+                                        "type": "string",
+                                        "format": "uri"
+                                    },
+                                    "responsibleCounties": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "uri"
+                                        }
+                                    },
+                                    "responsibleForecastZones": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "uri"
+                                        }
+                                    },
+                                    "responsibleFireZones": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "uri"
+                                        }
+                                    },
+                                    "approvedObservationStations": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "uri"
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns metadata about a NWS forecast office",
+            "tags": [],
+            "operationId": "office"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/offices/{officeId}/headlines/{headlineId}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "@id": {
+                                        "type": "string",
+                                        "format": "uri"
+                                    },
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "office": {
+                                        "type": "string",
+                                        "format": "uri"
+                                    },
+                                    "important": {
+                                        "type": "boolean"
+                                    },
+                                    "issuanceTime": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "link": {
+                                        "type": "string",
+                                        "format": "uri"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "summary": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "content": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a specific news headline for a given NWS office",
+            "tags": [],
+            "operationId": "office_headline"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/offices/{officeId}/headlines",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "required": [
+                                    "@context",
+                                    "@graph"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "@graph": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/OfficeHeadline"
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of news headlines for a given NWS office",
+            "tags": [],
+            "operationId": "office_headlines"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/points/{point}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/GeoJsonFeature"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "properties": {
+                                                "$ref": "#/components/schemas/Point"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "application/ld+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Point"
+                                    },
+                                    {
+                                        "required": [
+                                            "@context",
+                                            "geometry"
+                                        ],
+                                        "type": "object",
+                                        "properties": {
+                                            "@context": {
+                                                "$ref": "#/components/schemas/JsonLdContext"
+                                            },
+                                            "geometry": {
+                                                "$ref": "#/components/schemas/GeometryString"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns metadata about a given latitude/longitude point",
+            "tags": [],
+            "operationId": "point"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/points/{point}/stations",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "301": {
+                    "description": "redirect to gridpoint stations"
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of observation stations for a given point",
+            "tags": [],
+            "operationId": "point_stations"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/radar/servers",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "reportingHost",
+                    "in": "query",
+                    "description": "Show records from specific reporting host",
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of radar servers",
+            "tags": [],
+            "operationId": "radar_servers"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/radar/servers/{id}",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "reportingHost",
+                    "in": "query",
+                    "description": "Show records from specific reporting host",
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns metadata about a given radar server",
+            "tags": [],
+            "operationId": "radar_server"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/radar/stations",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "stationType",
+                    "in": "query",
+                    "description": "Limit results to a specific station type or types",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "pattern": "^[A-Za-z0-9-]+$",
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "name": "reportingHost",
+                    "in": "query",
+                    "description": "Show RDA and latency info from specific reporting host",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "host",
+                    "in": "query",
+                    "description": "Show latency info from specific LDM host",
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {}
+                        },
+                        "application/ld+json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of radar stations",
+            "tags": [],
+            "operationId": "radar_stations"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/radar/stations/{stationId}",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "reportingHost",
+                    "in": "query",
+                    "description": "Show RDA and latency info from specific reporting host",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "host",
+                    "in": "query",
+                    "description": "Show latency info from specific LDM host",
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {}
+                        },
+                        "application/ld+json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns metadata about a given radar station",
+            "tags": [],
+            "operationId": "radar_station"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/radar/stations/{stationId}/alarms",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns metadata about a given radar station alarms",
+            "tags": [],
+            "operationId": "radar_station_alarms"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/radar/queues/{host}",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "description": "Record limit",
+                    "schema": {
+                        "maximum": 500,
+                        "minimum": 1,
+                        "type": "integer"
+                    }
+                },
+                {
+                    "name": "arrived",
+                    "in": "query",
+                    "description": "Range for arrival time",
+                    "schema": {
+                        "oneOf": [
+                            {
+                                "pattern": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$",
+                                "type": "string",
+                                "example": "2007-03-01T13:00:00Z/2008-05-11T15:30:00Z"
+                            },
+                            {
+                                "pattern": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?$",
+                                "type": "string",
+                                "example": "2007-03-01T13:00:00Z/P1Y2M10DT2H30M"
+                            },
+                            {
+                                "pattern": "^P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$",
+                                "type": "string",
+                                "example": "P1Y2M10DT2H30M/2008-05-11T15:30:00Z"
+                            }
+                        ],
+                        "description": "A time interval in ISO 8601 format. This can be one of:\n\n    1. Start and end time\n    2. Start time and duration\n    3. Duration and end time\nThe string \"NOW\" can also be used in place of a start/end time.\n"
+                    }
+                },
+                {
+                    "name": "created",
+                    "in": "query",
+                    "description": "Range for creation time",
+                    "schema": {
+                        "oneOf": [
+                            {
+                                "pattern": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$",
+                                "type": "string",
+                                "example": "2007-03-01T13:00:00Z/2008-05-11T15:30:00Z"
+                            },
+                            {
+                                "pattern": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?$",
+                                "type": "string",
+                                "example": "2007-03-01T13:00:00Z/P1Y2M10DT2H30M"
+                            },
+                            {
+                                "pattern": "^P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$",
+                                "type": "string",
+                                "example": "P1Y2M10DT2H30M/2008-05-11T15:30:00Z"
+                            }
+                        ],
+                        "description": "A time interval in ISO 8601 format. This can be one of:\n\n    1. Start and end time\n    2. Start time and duration\n    3. Duration and end time\nThe string \"NOW\" can also be used in place of a start/end time.\n"
+                    }
+                },
+                {
+                    "name": "published",
+                    "in": "query",
+                    "description": "Range for publish time",
+                    "schema": {
+                        "oneOf": [
+                            {
+                                "pattern": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$",
+                                "type": "string",
+                                "example": "2007-03-01T13:00:00Z/2008-05-11T15:30:00Z"
+                            },
+                            {
+                                "pattern": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?$",
+                                "type": "string",
+                                "example": "2007-03-01T13:00:00Z/P1Y2M10DT2H30M"
+                            },
+                            {
+                                "pattern": "^P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$",
+                                "type": "string",
+                                "example": "P1Y2M10DT2H30M/2008-05-11T15:30:00Z"
+                            }
+                        ],
+                        "description": "A time interval in ISO 8601 format. This can be one of:\n\n    1. Start and end time\n    2. Start time and duration\n    3. Duration and end time\nThe string \"NOW\" can also be used in place of a start/end time.\n"
+                    }
+                },
+                {
+                    "name": "station",
+                    "in": "query",
+                    "description": "Station identifier",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "type",
+                    "in": "query",
+                    "description": "Record type",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "feed",
+                    "in": "query",
+                    "description": "Originating product feed",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "resolution",
+                    "in": "query",
+                    "description": "Resolution version",
+                    "schema": {
+                        "minimum": 1,
+                        "type": "integer"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns metadata about a given radar queue",
+            "tags": [],
+            "operationId": "radar_queue"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/radar/profilers/{stationId}",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "time",
+                    "in": "query",
+                    "description": "Time interval",
+                    "schema": {
+                        "oneOf": [
+                            {
+                                "pattern": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$",
+                                "type": "string",
+                                "example": "2007-03-01T13:00:00Z/2008-05-11T15:30:00Z"
+                            },
+                            {
+                                "pattern": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?$",
+                                "type": "string",
+                                "example": "2007-03-01T13:00:00Z/P1Y2M10DT2H30M"
+                            },
+                            {
+                                "pattern": "^P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$",
+                                "type": "string",
+                                "example": "P1Y2M10DT2H30M/2008-05-11T15:30:00Z"
+                            }
+                        ],
+                        "description": "A time interval in ISO 8601 format. This can be one of:\n\n    1. Start and end time\n    2. Start time and duration\n    3. Duration and end time\nThe string \"NOW\" can also be used in place of a start/end time.\n"
+                    }
+                },
+                {
+                    "name": "interval",
+                    "in": "query",
+                    "description": "Averaging interval",
+                    "schema": {
+                        "pattern": "^P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?$",
+                        "type": "string",
+                        "description": "A time duration in ISO 8601 format.",
+                        "example": "P2DT12H"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns metadata about a given radar wind profiler",
+            "tags": [],
+            "operationId": "radar_profiler"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/products",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "location",
+                    "in": "query",
+                    "description": "Location id",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "name": "start",
+                    "in": "query",
+                    "description": "Start time",
+                    "schema": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                {
+                    "name": "end",
+                    "in": "query",
+                    "description": "End time",
+                    "schema": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                {
+                    "name": "office",
+                    "in": "query",
+                    "description": "Issuing office",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "pattern": "^[A-Z]{4}$",
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "name": "wmoid",
+                    "in": "query",
+                    "description": "WMO id code",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "pattern": "^[A-Z]{4}\\d{2}$",
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "name": "type",
+                    "in": "query",
+                    "description": "Product code",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "pattern": "^\\w{3}$",
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "description": "Limit",
+                    "schema": {
+                        "maximum": 500,
+                        "minimum": 1,
+                        "type": "integer"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "@graph": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/TextProduct"
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of text products",
+            "tags": [],
+            "operationId": "products_query"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/products/locations",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "locations": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of valid text product issuance locations",
+            "tags": [],
+            "operationId": "product_locations"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/products/types",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "@graph": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "productCode",
+                                                "productName"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "productCode": {
+                                                    "type": "string"
+                                                },
+                                                "productName": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "additionalProperties": false
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of valid text product types and codes",
+            "tags": [],
+            "operationId": "product_types"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/products/{productId}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "@id": {
+                                        "type": "string",
+                                        "format": "uri"
+                                    },
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "wmoCollectiveId": {
+                                        "type": "string"
+                                    },
+                                    "issuingOffice": {
+                                        "type": "string"
+                                    },
+                                    "issuanceTime": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "productCode": {
+                                        "type": "string"
+                                    },
+                                    "productName": {
+                                        "type": "string"
+                                    },
+                                    "productText": {
+                                        "type": "string"
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a specific text product",
+            "tags": [],
+            "operationId": "product"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/products/types/{typeId}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "@graph": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/TextProduct"
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of text products of a given type",
+            "tags": [],
+            "operationId": "products_type"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/products/types/{typeId}/locations",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "locations": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of valid text product issuance locations for a given product type",
+            "tags": [],
+            "operationId": "products_type_locations"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/products/locations/{locationId}/types",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "@graph": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "productCode",
+                                                "productName"
+                                            ],
+                                            "type": "object",
+                                            "properties": {
+                                                "productCode": {
+                                                    "type": "string"
+                                                },
+                                                "productName": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "additionalProperties": false
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of valid text product types for a given issuance location",
+            "tags": [],
+            "operationId": "location_products"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/products/types/{typeId}/locations/{locationId}",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "@graph": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/TextProduct"
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of text products of a given type for a given issuance location",
+            "tags": [],
+            "operationId": "products_type_location"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/zones",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "query",
+                    "description": "Zone ID (forecast or county)",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NWSZoneID"
+                        }
+                    }
+                },
+                {
+                    "name": "area",
+                    "in": "query",
+                    "description": "State/marine area code",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AreaCode"
+                        }
+                    }
+                },
+                {
+                    "name": "region",
+                    "in": "query",
+                    "description": "Region code",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RegionCode"
+                        }
+                    }
+                },
+                {
+                    "name": "type",
+                    "in": "query",
+                    "description": "Zone type",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NWSZoneType"
+                        }
+                    }
+                },
+                {
+                    "name": "point",
+                    "in": "query",
+                    "description": "Point (latitude,longitude)",
+                    "schema": {
+                        "pattern": "^(-?\\d+(?:\\.\\d+)?),(-?\\d+(?:\\.\\d+)?)$",
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "include_geometry",
+                    "in": "query",
+                    "description": "Include geometry in results (true/false)",
+                    "schema": {
+                        "type": "boolean"
+                    }
+                },
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "description": "Limit",
+                    "schema": {
+                        "minimum": 1,
+                        "type": "integer"
+                    }
+                },
+                {
+                    "name": "effective",
+                    "in": "query",
+                    "description": "Effective date/time",
+                    "schema": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/GeoJsonFeatureCollection"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "features": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "properties": {
+                                                            "$ref": "#/components/schemas/Zone"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "@graph": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/Zone"
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of zones",
+            "tags": [],
+            "operationId": "zone_list"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/zones/{type}",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "query",
+                    "description": "Zone ID (forecast or county)",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NWSZoneID"
+                        }
+                    }
+                },
+                {
+                    "name": "area",
+                    "in": "query",
+                    "description": "State/marine area code",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AreaCode"
+                        }
+                    }
+                },
+                {
+                    "name": "region",
+                    "in": "query",
+                    "description": "Region code",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RegionCode"
+                        }
+                    }
+                },
+                {
+                    "name": "type",
+                    "in": "query",
+                    "description": "Zone type",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NWSZoneType"
+                        }
+                    }
+                },
+                {
+                    "name": "point",
+                    "in": "query",
+                    "description": "Point (latitude,longitude)",
+                    "schema": {
+                        "pattern": "^(-?\\d+(?:\\.\\d+)?),(-?\\d+(?:\\.\\d+)?)$",
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "include_geometry",
+                    "in": "query",
+                    "description": "Include geometry in results (true/false)",
+                    "schema": {
+                        "type": "boolean"
+                    }
+                },
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "description": "Limit",
+                    "schema": {
+                        "minimum": 1,
+                        "type": "integer"
+                    }
+                },
+                {
+                    "name": "effective",
+                    "in": "query",
+                    "description": "Effective date/time",
+                    "schema": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/GeoJsonFeatureCollection"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "features": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "properties": {
+                                                            "$ref": "#/components/schemas/Zone"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "@graph": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/Zone"
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of zones of a given type",
+            "tags": [],
+            "operationId": "zone_list_type"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/zones/{type}/{zoneId}",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "effective",
+                    "in": "query",
+                    "description": "Effective date/time",
+                    "schema": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/GeoJsonFeature"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "properties": {
+                                                "$ref": "#/components/schemas/Zone"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Zone"
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns metadata about a given zone",
+            "tags": [],
+            "operationId": "zone"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/zones/{type}/{zoneId}/forecast",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/GeoJsonFeature"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "properties": {
+                                                "$ref": "#/components/schemas/ZoneForecast"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ZoneForecast"
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns the current zone forecast for a given zone",
+            "tags": [],
+            "operationId": "zone_forecast"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/zones/forecast/{zoneId}/observations",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "start",
+                    "in": "query",
+                    "description": "Start date/time",
+                    "schema": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                {
+                    "name": "end",
+                    "in": "query",
+                    "description": "End date/time",
+                    "schema": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "description": "Limit",
+                    "schema": {
+                        "maximum": 500,
+                        "minimum": 1,
+                        "type": "integer"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "success",
+                    "headers": {
+                        "X-Correlation-Id": {
+                            "$ref": "#/components/headers/CorrelationId"
+                        },
+                        "X-Request-Id": {
+                            "$ref": "#/components/headers/RequestId"
+                        },
+                        "X-Server-Id": {
+                            "$ref": "#/components/headers/ServerId"
+                        }
+                    },
+                    "content": {
+                        "application/geo+json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/GeoJsonFeatureCollection"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "features": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "properties": {
+                                                            "$ref": "#/components/schemas/Observation"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "application/ld+json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "@context": {
+                                        "$ref": "#/components/schemas/JsonLdContext"
+                                    },
+                                    "@graph": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/Observation"
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of observations for a given zone",
+            "tags": [],
+            "operationId": "zone_obs"
+        },
+        {
+            "server_url": "https://api.weather.gov",
+            "path": "/zones/forecast/{zoneId}/stations",
+            "method": "get",
+            "parameters": [],
+            "responses": {
+                "200": {
+                    "$ref": "#/components/responses/ObservationStationCollection"
+                },
+                "default": {
+                    "$ref": "#/components/responses/Error"
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Returns a list of observation stations for a given zone",
+            "tags": [],
+            "operationId": "zone_stations"
+        }
+    ],
+    "tools": []
+}

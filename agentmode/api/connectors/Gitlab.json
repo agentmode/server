@@ -7599,14 +7599,14 @@
                 {
                     "in": "path",
                     "name": "id",
-                    "description": "The ID of a secure file",
-                    "type": "integer",
-                    "format": "int32",
+                    "description": "The ID or URL-encoded path of the project owned by the\n        authenticated user",
+                    "type": "string",
                     "required": true
                 },
                 {
                     "in": "path",
                     "name": "secure_file_id",
+                    "description": "The ID of a secure file",
                     "type": "integer",
                     "format": "int32",
                     "required": true
@@ -7645,6 +7645,7 @@
                 {
                     "in": "path",
                     "name": "secure_file_id",
+                    "description": "The ID of a secure file",
                     "type": "integer",
                     "format": "int32",
                     "required": true
@@ -23698,7 +23699,7 @@
                 }
             },
             "request_body_parameters": {},
-            "description": "Get a list of all runners in the GitLab instance (shared and project). Access is restricted to users with administrator access.",
+            "description": "Get a list of all runners in the GitLab instance (shared and project). Access is restricted to users with either administrator access or auditor access.",
             "tags": [
                 "runners"
             ],
@@ -29283,6 +29284,10 @@
                             "experiment_features_enabled": {
                                 "type": "boolean",
                                 "description": "Enable experiment features for this group"
+                            },
+                            "model_prompt_cache_enabled": {
+                                "type": "boolean",
+                                "description": "Enable model prompt cache for this group"
                             }
                         },
                         "required": [
@@ -29559,6 +29564,10 @@
                             "experiment_features_enabled": {
                                 "type": "boolean",
                                 "description": "Enable experiment features for this group"
+                            },
+                            "model_prompt_cache_enabled": {
+                                "type": "boolean",
+                                "description": "Enable model prompt cache for this group"
                             },
                             "prevent_sharing_groups_outside_hierarchy": {
                                 "type": "boolean",
@@ -33296,6 +33305,22 @@
                                 "items": {
                                     "type": "string"
                                 }
+                            },
+                            "vulnerabilities_enabled": {
+                                "type": "boolean",
+                                "description": "Turn on Jira issue creation for GitLab vulnerabilities."
+                            },
+                            "vulnerabilities_issuetype": {
+                                "type": "string",
+                                "description": "Jira issue type to use when creating issues from vulnerabilities."
+                            },
+                            "project_key": {
+                                "type": "string",
+                                "description": "Key of the project to use when creating issues from vulnerabilities.This parameter is required if using the integration to create Jira issues from vulnerabilities."
+                            },
+                            "customize_jira_issue_enabled": {
+                                "type": "boolean",
+                                "description": "When set to `true`, opens a prefilled form on the Jira instancewhen creating a Jira issue from a vulnerability."
                             },
                             "commit_events": {
                                 "type": "boolean",
@@ -47395,6 +47420,22 @@
                                     "type": "string"
                                 }
                             },
+                            "vulnerabilities_enabled": {
+                                "type": "boolean",
+                                "description": "Turn on Jira issue creation for GitLab vulnerabilities."
+                            },
+                            "vulnerabilities_issuetype": {
+                                "type": "string",
+                                "description": "Jira issue type to use when creating issues from vulnerabilities."
+                            },
+                            "project_key": {
+                                "type": "string",
+                                "description": "Key of the project to use when creating issues from vulnerabilities.This parameter is required if using the integration to create Jira issues from vulnerabilities."
+                            },
+                            "customize_jira_issue_enabled": {
+                                "type": "boolean",
+                                "description": "When set to `true`, opens a prefilled form on the Jira instancewhen creating a Jira issue from a vulnerability."
+                            },
                             "commit_events": {
                                 "type": "boolean",
                                 "description": "Trigger event when a commit is created or updated."
@@ -52131,6 +52172,22 @@
                                 "items": {
                                     "type": "string"
                                 }
+                            },
+                            "vulnerabilities_enabled": {
+                                "type": "boolean",
+                                "description": "Turn on Jira issue creation for GitLab vulnerabilities."
+                            },
+                            "vulnerabilities_issuetype": {
+                                "type": "string",
+                                "description": "Jira issue type to use when creating issues from vulnerabilities."
+                            },
+                            "project_key": {
+                                "type": "string",
+                                "description": "Key of the project to use when creating issues from vulnerabilities.This parameter is required if using the integration to create Jira issues from vulnerabilities."
+                            },
+                            "customize_jira_issue_enabled": {
+                                "type": "boolean",
+                                "description": "When set to `true`, opens a prefilled form on the Jira instancewhen creating a Jira issue from a vulnerability."
                             },
                             "commit_events": {
                                 "type": "boolean",
@@ -60578,6 +60635,13 @@
                 },
                 {
                     "in": "formData",
+                    "name": "override_params[auto_duo_code_review_enabled]",
+                    "description": "Enable automatic reviews by GitLab Duo on merge requests",
+                    "type": "boolean",
+                    "required": false
+                },
+                {
+                    "in": "formData",
                     "name": "file.path",
                     "description": "Path to locally stored body (generated by Workhorse)",
                     "type": "string",
@@ -61396,6 +61460,13 @@
                     "in": "formData",
                     "name": "override_params[prevent_merge_without_jira_issue]",
                     "description": "Require an associated issue from Jira",
+                    "type": "boolean",
+                    "required": false
+                },
+                {
+                    "in": "formData",
+                    "name": "override_params[auto_duo_code_review_enabled]",
+                    "description": "Enable automatic reviews by GitLab Duo on merge requests",
                     "type": "boolean",
                     "required": false
                 }
@@ -62324,6 +62395,13 @@
                     "in": "formData",
                     "name": "override_params[prevent_merge_without_jira_issue]",
                     "description": "Require an associated issue from Jira",
+                    "type": "boolean",
+                    "required": false
+                },
+                {
+                    "in": "formData",
+                    "name": "override_params[auto_duo_code_review_enabled]",
+                    "description": "Enable automatic reviews by GitLab Duo on merge requests",
                     "type": "boolean",
                     "required": false
                 }
@@ -63751,6 +63829,10 @@
                                 "type": "boolean",
                                 "description": "Require an associated issue from Jira"
                             },
+                            "auto_duo_code_review_enabled": {
+                                "type": "boolean",
+                                "description": "Enable automatic reviews by GitLab Duo on merge requests"
+                            },
                             "repository_object_format": {
                                 "type": "string",
                                 "description": "The object format of the project repository",
@@ -64305,6 +64387,10 @@
                             "prevent_merge_without_jira_issue": {
                                 "type": "boolean",
                                 "description": "Require an associated issue from Jira"
+                            },
+                            "auto_duo_code_review_enabled": {
+                                "type": "boolean",
+                                "description": "Enable automatic reviews by GitLab Duo on merge requests"
                             },
                             "repository_object_format": {
                                 "type": "string",
@@ -64861,6 +64947,10 @@
                             "prevent_merge_without_jira_issue": {
                                 "type": "boolean",
                                 "description": "Require an associated issue from Jira"
+                            },
+                            "auto_duo_code_review_enabled": {
+                                "type": "boolean",
+                                "description": "Enable automatic reviews by GitLab Duo on merge requests"
                             },
                             "ci_default_git_depth": {
                                 "type": "integer",

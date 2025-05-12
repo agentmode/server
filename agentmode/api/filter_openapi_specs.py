@@ -11,6 +11,13 @@ If it is relevant to the software development lifecycle, return 'true', otherwis
 API call: {api_call}
 """
 
+SEARCH_PROMPT = """
+Determine if the following API call is related to searching or viewing specific search results, for something that a software engineer would use as part of their regular software development lifecycle.
+If it is relevant, return 'true', otherwise return 'false'.
+
+API call: {api_call}
+"""
+
 MAX_CONCURRENT_CALLS = 5
 LLM_MODEL = "gpt-4.1-nano"  # or "gemini/gemini-2.0-flash"
 # set your OpenAI or Google Gemini API key in the environment variables OPENAI_API_KEY or GEMINI_API_KEY
@@ -59,7 +66,6 @@ class FilterOpenAPISpecs:
         # Format the prompt
         prompt = PROMPT.format(api_call=api_call)
 
-        # Call Gemini 2.5 Flash via LiteLLM
         model_args = {}
         response = await litellm.acompletion(
             model=LLM_MODEL,

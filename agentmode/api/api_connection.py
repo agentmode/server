@@ -4,39 +4,37 @@ from dataclasses import dataclass, field
 import httpx
 
 from agentmode.logs import logger
-
-subclasses = {}
+from agentmode.api.connectors.api_connector import APIConnector
 
 @dataclass
 class APIConnection:
     """
+    an APIConnection actively sends requests to an API and returns the results.
+    an APIConnector defines the API schema that we're interested in, and how to filter the results.
     """
+    name: str
     mcp_resources: list = field(default_factory=list)
     mcp_tools: list = field(default_factory=list)
     auth_type: str = None
     credentials: dict = None
     server_url: str = None
+    connector: APIConnector = None
+    filter_responses: dict = field(default_factory=dict)
+    decode_responses: dict = field(default_factory=dict)
 
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        subclasses[cls.name] = cls
+    def __post_init__(self):
+        self.client = httpx.Client()
+        self.mcp_resources_functions = {} # for testing purposes
+        self.mcp_tools_functions = {} # for testing purposes
 
-    @classmethod
-    def create(cls, name, **kwargs):
-        if name not in subclasses.keys():
-            raise ValueError(f"Unknown APIConnection platform {name}")
-        instance = subclasses[name](**kwargs)
-        instance.client = httpx.Client()
-        return instance
-    
-    def create_dynamic_tool_or_resource(self, fn_name, parameters, request_body_parameters):
+    def create_dynamic_tool_or_resource(self, fn_name, server_url, path, method, parameters, request_body_parameters, operation_id):
+
         async def dynamic_tool_or_resource(input_parameters: dict = {}) -> str:
             try:
-                if not parameters.get('server_url') and not self.server_url:
+                # Use a local variable to avoid UnboundLocalError
+                local_server_url = server_url or self.server_url
+                if not local_server_url:
                     raise ValueError("Missing server_url in parameters and/or class")
-                # if parameters.get('server_url') is None, use the server_url from the class
-                if not parameters.get('server_url'):
-                    parameters['server_url'] = self.server_url
 
                 # Validate required parameters
                 for parameter in parameters:
@@ -71,6 +69,7 @@ class APIConnection:
                         elif parameter.get('in') == 'header':
                             headers[param_name] = input_parameters[param_name]
 
+
                 # In OpenAPI v3, Body and form parameters are replaced with requestBody, but we convert all v2 specs to v3 before parsing
                 # check if the parameter is a body parameter
                 if request_body_parameters:
@@ -85,10 +84,11 @@ class APIConnection:
                                     elif content_type == 'application/x-www-form-urlencoded':
                                         form_data[param_name] = input_parameters[param_name]
 
-                full_url = parameters.get('server_url', '') + parameters.get('path', '')
+
+                full_url = local_server_url + path
 
                 # Send the request with the provided parameters
-                success_flag, result = await self.send_request(parameters.get('method'), full_url, url_params, headers, body_data, form_data)
+                success_flag, result = await self.send_request(method, full_url, url_params, headers, body_data, form_data, operation_id)
                 if success_flag:
                     logger.debug(f"API result: {result}")
                     return result
@@ -96,8 +96,8 @@ class APIConnection:
                     logger.error(f"API query failed for {fn_name}")
                     return 'error'
             except Exception as e:
-                logger.error(f"Error executing API request: {e}")
-                return 'error' + str(e)
+                logger.error(f"Error executing API request", exc_info=True)
+                return 'error'
 
         return dynamic_tool_or_resource
     
@@ -111,8 +111,8 @@ class APIConnection:
             items = self.mcp_resources if type_ == 'resource' else self.mcp_tools
             for item in items:
                 # Check if the name already exists in the mapping (ie we may have multiple connections to the same API, ie one for prod & one for staging)
-                name = f"{self.name}-{item.get('operationId')}"
-                # Increment the counter for the connection name
+                name = f"{self.name}/{item.get('operationId')}"
+                # Increment the counter for the connection name (TODO: ask the user to provide a unique name)
                 suffix = ""
                 connection_name_counter[name] += 1
                 if connection_name_counter[name] > 1:
@@ -120,7 +120,7 @@ class APIConnection:
                     name = f"{name}{suffix}"
 
                 # Create a dynamic function
-                fn = self.create_dynamic_tool_or_resource(name, item.get('parameters', []), item.get('request_body_parameters', {}))
+                fn = self.create_dynamic_tool_or_resource(name, item.get('server_url', ''), item.get('path', ''), item.get('method', ''), item.get('parameters', []), item.get('request_body_parameters', {}), item.get('operationId'))
                 fn.__name__ = item.get('operationId')
                 fn.__doc__ = self.generate_docstring_for_function(
                     item.get('operationId'),
@@ -133,8 +133,10 @@ class APIConnection:
                     uri = f"{self.name}{suffix}//{item.get('operationId')}/{{input_parameters}}" # input_parameters is required to be in the URI
                     # otherwise you get an error: ValueError: Mismatch between URI parameters set() and function parameters {'input_parameters'}
                     mcp.resource(uri)(fn)
+                    self.mcp_resources_functions[name] = fn
                 else:
                     mcp.tool()(fn) # getattr(mcp, type_)()(fn)
+                    self.mcp_tools_functions[name] = fn
                 logger.debug(f"Generated function for {item.get('operationId')} of type {type_}")
 
     def generate_docstring_for_function(self, function_name: str, description: str = '', parameters: list = [], responses: dict = {}) -> str:
@@ -216,7 +218,7 @@ Args:
             logger.error(f"Authentication error: {e}")
             raise
 
-    async def send_request(self, method: str, url: str, url_params: dict = {}, headers: dict = {}, body_data: dict = {}, form_data: dict = {}):
+    async def send_request(self, method: str, url: str, url_params: dict = {}, headers: dict = {}, body_data: dict = {}, form_data: dict = {}, operation_id: str = None):
         """
         Make an asynchronous HTTP request using the httpx client.
 
@@ -227,6 +229,7 @@ Args:
             headers (dict): Headers to be included in the request.
             body_data (dict): Body data to be included in the request.
             form_data (dict): Form data to be included in the request.
+            operator_id (str): The ID of the operator for the request.
             **kwargs: Additional keyword arguments for the request.
 
         Returns:
@@ -255,7 +258,17 @@ Args:
                 
                 response = await client.request(method, url, **kwargs)
                 response.raise_for_status()  # Raise an error for non-2xx responses
-                return True, response.text
+                result = response.text
+                is_json = False
+                # if the response is JSON, decode it
+                if response.headers.get('Content-Type') == 'application/json':
+                    result = response.json()
+                    is_json = True
+                if self.connector and self.filter_responses and is_json and self.filter_responses and self.filter_responses.get(operation_id): # only support JSON responses for now
+                    result = json.dumps(self.connector.post_process_response(result, self.filter_responses.get(operation_id)))
+                if self.connector and self.decode_responses and self.decode_responses.get(operation_id):
+                    result = json.dumps(self.connector.base64_decode(result, self.decode_responses.get(operation_id)))
+                return True, result
 
         except httpx.RequestError as e:
             logger.error(f"An error occurred while making the request: {e}")

@@ -21,6 +21,7 @@ class OpenAPIToMCPConverter:
     name: str
     openapi_spec_url: str = None
     openapi_spec_file_path: str = None
+    filter_to_operator_ids: list = None
     read_only: bool = False
     filter_to_relevant_api_methods: bool = True
 
@@ -29,7 +30,7 @@ class OpenAPIToMCPConverter:
         Initialize the OpenAPIToMCPConverter instance.
         """
         # Dynamically create a subclass of APIConnection with the given name
-        self.api_connection = type(f"{self.name}APIConnection", (APIConnection,), {'name': self.name})()
+        self.api_connection = type(f"{self.name}APIConnection", (APIConnection,), {})(name=self.name)
         self.mapping_operations_to_mcp = {
             'GET': 'resource',
             'POST': 'tool',
@@ -58,8 +59,14 @@ class OpenAPIToMCPConverter:
         if self.filter_to_relevant_api_methods:
             self.api_connection.mcp_resources = await self.api_filter.filter_api_calls(self.api_connection.mcp_resources)
             self.api_connection.mcp_tools = await self.api_filter.filter_api_calls(self.api_connection.mcp_tools)
-            logger.info(f"Filtered resources: {self.api_connection.mcp_resources}")
-            logger.info(f"Filtered tools: {self.api_connection.mcp_tools}")
+            logger.info(f"Filtered resources operationIds: {[resource['operationId'] for resource in self.api_connection.mcp_resources]}")
+            logger.info(f"Filtered tools operationIds: {[tool['operationId'] for tool in self.api_connection.mcp_tools]}")
+
+        if self.filter_to_operator_ids:
+            logger.info(f"Filtering resources and tools to operator IDs: {self.filter_to_operator_ids}")
+            # Filter the resources and tools based on operator IDs
+            self.api_connection.mcp_resources = [resource for resource in self.api_connection.mcp_resources if resource['operationId'] in self.filter_to_operator_ids]
+            self.api_connection.mcp_tools = [tool for tool in self.api_connection.mcp_tools if tool['operationId'] in self.filter_to_operator_ids]
         
         self.save_results({'resources': self.api_connection.mcp_resources, 'tools': self.api_connection.mcp_tools}, self.filter_to_relevant_api_methods)
 
@@ -137,6 +144,9 @@ class OpenAPIToMCPConverter:
                 for param in parameters:
                     if 'schema' in param and '$ref' in param['schema']:
                         ref = param['schema']['$ref']
+                        param['schema'] = self.resolve_ref(ref)
+                    elif '$ref' in param.keys():
+                        ref = param['$ref']
                         param['schema'] = self.resolve_ref(ref)
 
                 # Denormalize any reference schemas in responses
@@ -224,6 +234,7 @@ class OpenAPIToMCPConverter:
         Save the results to a JSON file
         """
         path = os.path.join('api', 'connectors', f'{self.name}.json')
+        logger.debug(f"Saving results to {path}")
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, 'w') as json_file:
             json.dump(results, json_file, indent=4)

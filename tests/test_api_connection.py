@@ -24,7 +24,7 @@ async def test_api_request():
     logger.info("Starting test_api_request")
     converter = OpenAPIToMCPConverter(name="weather", openapi_spec_url="https://api.weather.gov/openapi.json", filter_to_relevant_api_methods=False)
     await converter.run_pipeline()
-    api = APIConnection.create(
+    api = APIConnection(
         name="weather",
         mcp_resources=converter.api_connection.mcp_resources,
         mcp_tools=converter.api_connection.mcp_tools,

@@ -24,6 +24,7 @@ import platformdirs
 from agentmode.logs import logger
 from agentmode.database import DatabaseConnection
 from agentmode.api.api_connection import APIConnection
+from agentmode.api.connectors.api_connector import APIConnector
 from agentmode.connector_setup import create_gradio_interface
 
 HOME_DIRECTORY = platformdirs.user_data_dir('agentmode', ensure_exists=True)
@@ -68,16 +69,17 @@ async def setup_api_connection(connection_name: str, connection: dict, mcp: Fast
     try:
         api_connection = type(f"{connection_name}APIConnection", (APIConnection,), {'name': connection_name})() # define the APIConnection class dynamically
         
-        # get the API information from api/connectors/{connection_name}.toml or .json
+        # get the API schema from api/connectors/{connection_name}.json
         connectors_path = importlib.resources.files('agentmode.api.connectors').joinpath(f"{connection_name}.json")
         api_info = benedict.from_json(str(connectors_path))
         if not api_info:
             logger.error(f"Failed to load API information for {connection_name}")
             return None
-        #logger.info(f"Loaded API information for {connection_name}: {api_info}")
         
+        # get the APIConnector for that API name
+        api_connector = APIConnector.create(connection_name) # may be a subclass of APIConnector if custom logic is needed
         # Create the APIConnection instance
-        api_connection = APIConnection.create(
+        api_connection = APIConnection(
             connection_name, 
             mcp_resources=api_info.get("resources", []),
             mcp_tools=api_info.get("tools", []),
@@ -88,7 +90,10 @@ async def setup_api_connection(connection_name: str, connection: dict, mcp: Fast
                 "token": connection.get("token"),
                 "headers": connection.get("headers"),
             }, 
-            server_url=connection.get("server_url"), # comes from the form
+            server_url=connection.get("server_url"), # comes from the form,
+            connector=api_connector,
+            response_filters=api_info.get("filter_responses", {}),
+            decode_responses=api_info.get("decode_responses", {}),
         )
 
         api_connection.generate_mcp_resources_and_tools(mcp, connection_name_counter)

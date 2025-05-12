@@ -2612,6 +2612,17 @@
                                         },
                                         "type": "array",
                                         "title": "Dag Versions"
+                                    },
+                                    "bundle_version": {
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ],
+                                        "title": "Bundle Version"
                                     }
                                 },
                                 "type": "object",
@@ -2631,7 +2642,8 @@
                                     "triggered_by",
                                     "conf",
                                     "note",
-                                    "dag_versions"
+                                    "dag_versions",
+                                    "bundle_version"
                                 ],
                                 "title": "DAGRunResponse",
                                 "description": "DAG Run serializer for responses."
@@ -14561,6 +14573,17 @@
                                         },
                                         "type": "array",
                                         "title": "Dag Versions"
+                                    },
+                                    "bundle_version": {
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ],
+                                        "title": "Bundle Version"
                                     }
                                 },
                                 "type": "object",
@@ -14580,7 +14603,8 @@
                                     "triggered_by",
                                     "conf",
                                     "note",
-                                    "dag_versions"
+                                    "dag_versions",
+                                    "bundle_version"
                                 ],
                                 "title": "DAGRunResponse",
                                 "description": "DAG Run serializer for responses."
@@ -18194,6 +18218,17 @@
                                         },
                                         "type": "array",
                                         "title": "Dag Versions"
+                                    },
+                                    "bundle_version": {
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ],
+                                        "title": "Bundle Version"
                                     }
                                 },
                                 "type": "object",
@@ -18213,7 +18248,8 @@
                                     "triggered_by",
                                     "conf",
                                     "note",
-                                    "dag_versions"
+                                    "dag_versions",
+                                    "bundle_version"
                                 ],
                                 "title": "DAGRunResponse",
                                 "description": "DAG Run serializer for responses."
@@ -18739,6 +18775,17 @@
                                         },
                                         "type": "array",
                                         "title": "Dag Versions"
+                                    },
+                                    "bundle_version": {
+                                        "anyOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ],
+                                        "title": "Bundle Version"
                                     }
                                 },
                                 "type": "object",
@@ -18758,7 +18805,8 @@
                                     "triggered_by",
                                     "conf",
                                     "note",
-                                    "dag_versions"
+                                    "dag_versions",
+                                    "bundle_version"
                                 ],
                                 "title": "DAGRunResponse",
                                 "description": "DAG Run serializer for responses."
@@ -24617,8 +24665,7 @@
                                     "title": "Key"
                                 },
                                 "value": {
-                                    "type": "string",
-                                    "title": "Value"
+                                    "$ref": "#/components/schemas/JsonValue"
                                 },
                                 "description": {
                                     "anyOf": [
@@ -24819,8 +24866,7 @@
                                     "title": "Key"
                                 },
                                 "value": {
-                                    "type": "string",
-                                    "title": "Value"
+                                    "$ref": "#/components/schemas/JsonValue"
                                 },
                                 "description": {
                                     "anyOf": [

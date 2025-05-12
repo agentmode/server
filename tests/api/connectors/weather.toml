@@ -1,0 +1,2115 @@
+tools = []
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/alerts"
+method = "get"
+description = "Returns all alerts"
+tags = []
+operationId = "alerts_query"
+[[resources.parameters]]
+name = "active"
+in = "query"
+description = "List only active alerts (use /alerts/active endpoints instead)"
+deprecated = true
+
+[resources.parameters.schema]
+type = "boolean"
+[[resources.parameters]]
+"$ref" = "#/components/parameters/QueryStartTime"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/QueryEndTime"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertStatus"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertMessageType"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertEventName"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertCode"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertArea"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertPoint"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertRegion"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertRegionType"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertZone"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertUrgency"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertSeverity"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertCertainty"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/Limit"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/PaginationCursor"
+
+
+[resources.responses.200]
+"$ref" = "#/components/responses/AlertCollection"
+[resources.responses.301]
+description = "Certain common queries may be redirected to discrete URLs"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/alerts/active"
+method = "get"
+description = "Returns all currently active alerts"
+tags = []
+operationId = "alerts_active"
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertStatus"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertMessageType"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertEventName"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertCode"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertArea"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertPoint"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertRegion"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertRegionType"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertZone"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertUrgency"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertSeverity"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/AlertCertainty"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/Limit"
+
+
+[resources.responses.200]
+"$ref" = "#/components/responses/AlertCollection"
+[resources.responses.301]
+description = "Certain common queries may be redirected to discrete URLs"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/alerts/active/count"
+method = "get"
+parameters = []
+description = "Returns info on the number of active alerts"
+tags = []
+operationId = "alerts_active_count"
+
+[resources.responses.200]
+description = "A data structure showing the counts of active alerts broken down by various categories"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+[resources.responses.200.content."application/ld+json".schema.properties.total]
+minimum = 0
+type = "integer"
+description = "The total number of active alerts"
+[resources.responses.200.content."application/ld+json".schema.properties.land]
+minimum = 0
+type = "integer"
+description = "The total number of active alerts affecting land zones"
+[resources.responses.200.content."application/ld+json".schema.properties.marine]
+minimum = 0
+type = "integer"
+description = "The total number of active alerts affecting marine zones"
+[resources.responses.200.content."application/ld+json".schema.properties.regions]
+type = "object"
+description = "Active alerts by marine region"
+[resources.responses.200.content."application/ld+json".schema.properties.areas]
+type = "object"
+description = "Active alerts by area (state/territory)"
+[resources.responses.200.content."application/ld+json".schema.properties.zones]
+type = "object"
+description = "Active alerts by NWS public zone or county code"
+[resources.responses.200.content."application/ld+json".schema.properties.regions.additionalProperties]
+minimum = 1
+type = "integer"
+[resources.responses.200.content."application/ld+json".schema.properties.areas.additionalProperties]
+minimum = 1
+type = "integer"
+[resources.responses.200.content."application/ld+json".schema.properties.zones.additionalProperties]
+minimum = 1
+type = "integer"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/alerts/active/zone/{zoneId}"
+method = "get"
+parameters = []
+description = "Returns active alerts for the given NWS public zone or county"
+tags = []
+operationId = "alerts_active_zone"
+
+[resources.responses.200]
+"$ref" = "#/components/responses/AlertCollection"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/alerts/active/area/{area}"
+method = "get"
+parameters = []
+description = "Returns active alerts for the given area (state or marine area)"
+tags = []
+operationId = "alerts_active_area"
+
+[resources.responses.200]
+"$ref" = "#/components/responses/AlertCollection"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/alerts/active/region/{region}"
+method = "get"
+parameters = []
+description = "Returns active alerts for the given marine region"
+tags = []
+operationId = "alerts_active_region"
+
+[resources.responses.200]
+"$ref" = "#/components/responses/AlertCollection"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/alerts/types"
+method = "get"
+parameters = []
+description = "Returns a list of alert types"
+tags = []
+operationId = "alerts_types"
+
+[resources.responses.200]
+description = "A list of recognized event types"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+[resources.responses.200.content."application/ld+json".schema.properties.eventTypes]
+type = "array"
+description = "A list of recognized event types"
+[resources.responses.200.content."application/ld+json".schema.properties.eventTypes.items]
+type = "string"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/alerts/{id}"
+method = "get"
+parameters = []
+description = "Returns a specific alert"
+tags = []
+operationId = "alerts_single"
+
+[resources.responses.200]
+description = "An alert record"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.x-url-content-negotiation-extensions]
+json = "application/geo+json"
+cap = "application/cap+xml"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/geo+json".schema]
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+"$ref" = "#/components/schemas/GeoJsonFeature"
+
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+type = "object"
+
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.properties]
+"$ref" = "#/components/schemas/Alert"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+[resources.responses.200.content."application/cap+xml".schema]
+type = "object"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph"]
+type = "array"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph".items]
+"$ref" = "#/components/schemas/Alert"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/aviation/cwsus/{cwsuId}"
+method = "get"
+description = "Returns metadata about a Center Weather Service Unit"
+tags = []
+operationId = "cwsu"
+[[resources.parameters]]
+"$ref" = "#/components/parameters/NWSCenterWeatherServiceUnitId"
+
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.content."application/ld+json".schema]
+"$ref" = "#/components/schemas/Office"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/aviation/cwsus/{cwsuId}/cwas"
+method = "get"
+description = "Returns a list of Center Weather Advisories from a CWSU"
+tags = []
+operationId = "cwas"
+[[resources.parameters]]
+"$ref" = "#/components/parameters/NWSCenterWeatherServiceUnitId"
+
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.content."application/geo+json".schema]
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+"$ref" = "#/components/schemas/GeoJsonFeatureCollection"
+
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+type = "object"
+
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features]
+type = "array"
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features.items]
+type = "object"
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features.items.properties.properties]
+"$ref" = "#/components/schemas/CenterWeatherAdvisory"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/aviation/cwsus/{cwsuId}/cwas/{date}/{sequence}"
+method = "get"
+description = "Returns a list of Center Weather Advisories from a CWSU"
+tags = []
+operationId = "cwa"
+[[resources.parameters]]
+"$ref" = "#/components/parameters/NWSCenterWeatherServiceUnitId"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/Date"
+
+[[resources.parameters]]
+name = "sequence"
+in = "path"
+description = "Sequence number"
+required = true
+
+[resources.parameters.schema]
+minimum = 100
+type = "integer"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.content."application/geo+json".schema]
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+"$ref" = "#/components/schemas/GeoJsonFeature"
+
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+type = "object"
+
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.properties]
+"$ref" = "#/components/schemas/CenterWeatherAdvisory"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/aviation/sigmets"
+method = "get"
+description = "Returns a list of SIGMET/AIRMETs"
+tags = []
+operationId = "sigmetQuery"
+[[resources.parameters]]
+"$ref" = "#/components/parameters/QueryStartTime"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/QueryEndTime"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/QueryDate"
+
+[[resources.parameters]]
+name = "atsu"
+in = "query"
+description = "ATSU identifier"
+
+[resources.parameters.schema]
+pattern = "^[A-Z]{3,4}$"
+type = "string"
+description = "ATSU Identifier"
+[[resources.parameters]]
+name = "sequence"
+in = "query"
+description = "SIGMET sequence number"
+
+[resources.parameters.schema]
+type = "string"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.content."application/geo+json".schema]
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+"$ref" = "#/components/schemas/GeoJsonFeatureCollection"
+
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+type = "object"
+
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features]
+type = "array"
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features.items]
+"$ref" = "#/components/schemas/SigmetGeoJson"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/aviation/sigmets/{atsu}"
+method = "get"
+description = "Returns a list of SIGMET/AIRMETs for the specified ATSU"
+tags = []
+operationId = "sigmetsByATSU"
+[[resources.parameters]]
+"$ref" = "#/components/parameters/ATSUIdentifier"
+
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.content."application/geo+json".schema]
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+"$ref" = "#/components/schemas/GeoJsonFeatureCollection"
+
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+type = "object"
+
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features]
+type = "array"
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features.items]
+"$ref" = "#/components/schemas/SigmetGeoJson"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/aviation/sigmets/{atsu}/{date}"
+method = "get"
+description = "Returns a list of SIGMET/AIRMETs for the specified ATSU for the specified date"
+tags = []
+operationId = "sigmetsByATSUByDate"
+[[resources.parameters]]
+"$ref" = "#/components/parameters/ATSUIdentifier"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/Date"
+
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.content."application/geo+json".schema]
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+"$ref" = "#/components/schemas/GeoJsonFeatureCollection"
+
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+type = "object"
+
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features]
+type = "array"
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features.items]
+"$ref" = "#/components/schemas/SigmetGeoJson"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/aviation/sigmets/{atsu}/{date}/{time}"
+method = "get"
+description = "Returns a specific SIGMET/AIRMET"
+tags = []
+operationId = "sigmet"
+[[resources.parameters]]
+"$ref" = "#/components/parameters/ATSUIdentifier"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/Date"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/Time"
+
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.content."application/geo+json".schema]
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+"$ref" = "#/components/schemas/GeoJsonFeature"
+
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+type = "object"
+
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.properties]
+"$ref" = "#/components/schemas/Sigmet"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/glossary"
+method = "get"
+parameters = []
+description = "Returns glossary terms"
+tags = []
+operationId = "glossary"
+
+[resources.responses.200]
+description = "A set of glossary terms"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties.glossary]
+type = "array"
+description = "A list of glossary terms"
+[resources.responses.200.content."application/ld+json".schema.properties.glossary.items]
+type = "object"
+[resources.responses.200.content."application/ld+json".schema.properties.glossary.items.properties.term]
+type = "string"
+description = "The term being defined"
+[resources.responses.200.content."application/ld+json".schema.properties.glossary.items.properties.definition]
+type = "string"
+description = "A definition for the term"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/gridpoints/{wfo}/{x},{y}"
+method = "get"
+parameters = []
+description = "Returns raw numerical forecast data for a 2.5km grid area"
+tags = []
+operationId = "gridpoint"
+
+[resources.responses.200]
+description = "Gridpoint forecast data"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/geo+json".schema]
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+"$ref" = "#/components/schemas/GeoJsonFeature"
+
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+type = "object"
+
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.properties]
+"$ref" = "#/components/schemas/Gridpoint"
+[resources.responses.200.content."application/ld+json".schema]
+"$ref" = "#/components/schemas/Gridpoint"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/gridpoints/{wfo}/{x},{y}/forecast"
+method = "get"
+description = "Returns a textual forecast for a 2.5km grid area"
+tags = []
+operationId = "gridpoint_forecast"
+[[resources.parameters]]
+"$ref" = "#/components/parameters/GridpointForecastFeatureFlags"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/GridpointForecastUnits"
+
+
+[resources.responses.200]
+"$ref" = "#/components/responses/GridpointForecast"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/gridpoints/{wfo}/{x},{y}/forecast/hourly"
+method = "get"
+description = "Returns a textual hourly forecast for a 2.5km grid area"
+tags = []
+operationId = "gridpoint_forecast_hourly"
+[[resources.parameters]]
+"$ref" = "#/components/parameters/GridpointForecastFeatureFlags"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/GridpointForecastUnits"
+
+
+[resources.responses.200]
+"$ref" = "#/components/responses/GridpointForecast"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/gridpoints/{wfo}/{x},{y}/stations"
+method = "get"
+parameters = []
+description = "Returns a list of observation stations usable for a given 2.5km grid area"
+tags = []
+operationId = "gridpoint_stations"
+
+[resources.responses.200]
+"$ref" = "#/components/responses/ObservationStationCollection"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/icons/{set}/{timeOfDay}/{first}"
+method = "get"
+parameters = []
+description = "Returns a forecast icon. Icon services in API are deprecated."
+tags = []
+operationId = "icons"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."image/png".schema]
+type = "string"
+format = "binary"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/icons/{set}/{timeOfDay}/{first}/{second}"
+method = "get"
+parameters = []
+description = "Returns a forecast icon. Icon services in API are deprecated."
+tags = []
+operationId = "iconsDualCondition"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."image/png".schema]
+type = "string"
+format = "binary"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/icons"
+method = "get"
+parameters = []
+description = "Returns a list of icon codes and textual descriptions. Icon services in API are deprecated."
+tags = []
+operationId = "icons_summary"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/ld+json".schema]
+required = [ "icons",]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties.icons]
+type = "object"
+[resources.responses.200.content."application/ld+json".schema.properties.icons.additionalProperties]
+required = [ "description",]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties.icons.additionalProperties.properties.description]
+type = "string"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/thumbnails/satellite/{area}"
+method = "get"
+parameters = []
+description = "Returns a thumbnail image for a satellite region. Image services in API are deprecated."
+tags = []
+operationId = "satellite_thumbnails"
+
+[resources.responses.200]
+description = "An image file"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."image/jpeg".schema]
+type = "string"
+format = "binary"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/stations/{stationId}/observations"
+method = "get"
+description = "Returns a list of observations for a given station"
+tags = []
+operationId = "station_observation_list"
+[[resources.parameters]]
+"$ref" = "#/components/parameters/QueryStartTime"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/QueryEndTime"
+
+[[resources.parameters]]
+name = "limit"
+in = "query"
+description = "Limit"
+
+[resources.parameters.schema]
+maximum = 500
+minimum = 1
+type = "integer"
+
+[resources.responses.200]
+"$ref" = "#/components/responses/ObservationCollection"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/stations/{stationId}/observations/latest"
+method = "get"
+description = "Returns the latest observation for a station"
+tags = []
+operationId = "station_observation_latest"
+[[resources.parameters]]
+name = "require_qc"
+in = "query"
+description = "Require QC"
+
+[resources.parameters.schema]
+type = "boolean"
+
+[resources.responses.200]
+"$ref" = "#/components/responses/Observation"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/stations/{stationId}/observations/{time}"
+method = "get"
+description = "Returns a single observation."
+tags = []
+operationId = "station_observation_time"
+[[resources.parameters]]
+name = "time"
+in = "path"
+description = "Timestamp of requested observation"
+required = true
+
+[resources.parameters.schema]
+type = "string"
+format = "date-time"
+
+[resources.responses.200]
+"$ref" = "#/components/responses/Observation"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/stations/{stationId}/tafs"
+method = "get"
+description = "Returns Terminal Aerodrome Forecasts for the specified airport station."
+tags = []
+operationId = "tafs"
+[[resources.parameters]]
+"$ref" = "#/components/parameters/ObservationStationId"
+
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/stations/{stationId}/tafs/{date}/{time}"
+method = "get"
+description = "Returns a single Terminal Aerodrome Forecast."
+tags = []
+operationId = "taf"
+[[resources.parameters]]
+"$ref" = "#/components/parameters/ObservationStationId"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/Date"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/Time"
+
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/stations"
+method = "get"
+description = "Returns a list of observation stations."
+tags = []
+operationId = "obs_stations"
+[[resources.parameters]]
+name = "id"
+in = "query"
+description = "Filter by observation station ID"
+style = "form"
+explode = false
+
+[resources.parameters.schema]
+type = "array"
+[resources.parameters.schema.items]
+type = "string"
+[[resources.parameters]]
+name = "state"
+in = "query"
+description = "Filter by state/marine area code"
+style = "form"
+explode = false
+
+[resources.parameters.schema]
+type = "array"
+[resources.parameters.schema.items]
+"$ref" = "#/components/schemas/AreaCode"
+[[resources.parameters]]
+"$ref" = "#/components/parameters/Limit"
+
+[[resources.parameters]]
+"$ref" = "#/components/parameters/PaginationCursor"
+
+
+[resources.responses.200]
+"$ref" = "#/components/responses/ObservationStationCollection"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/stations/{stationId}"
+method = "get"
+parameters = []
+description = "Returns metadata about a given observation station"
+tags = []
+operationId = "obs_station"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/geo+json".schema]
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+"$ref" = "#/components/schemas/GeoJsonFeature"
+
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+type = "object"
+
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.properties]
+"$ref" = "#/components/schemas/ObservationStation"
+[resources.responses.200.content."application/ld+json".schema]
+[[resources.responses.200.content."application/ld+json".schema.allOf]]
+"$ref" = "#/components/schemas/ObservationStation"
+
+[[resources.responses.200.content."application/ld+json".schema.allOf]]
+required = [ "@context", "geometry",]
+type = "object"
+
+[resources.responses.200.content."application/ld+json".schema.allOf.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.allOf.properties.geometry]
+"$ref" = "#/components/schemas/GeometryString"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/offices/{officeId}"
+method = "get"
+parameters = []
+description = "Returns metadata about a NWS forecast office"
+tags = []
+operationId = "office"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties."@type"]
+enum = [ "GovernmentOrganization",]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties."@id"]
+type = "string"
+format = "uri"
+[resources.responses.200.content."application/ld+json".schema.properties.id]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.name]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.address]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties.telephone]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.faxNumber]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.email]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.sameAs]
+type = "string"
+format = "uri"
+[resources.responses.200.content."application/ld+json".schema.properties.nwsRegion]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.parentOrganization]
+type = "string"
+format = "uri"
+[resources.responses.200.content."application/ld+json".schema.properties.responsibleCounties]
+type = "array"
+[resources.responses.200.content."application/ld+json".schema.properties.responsibleForecastZones]
+type = "array"
+[resources.responses.200.content."application/ld+json".schema.properties.responsibleFireZones]
+type = "array"
+[resources.responses.200.content."application/ld+json".schema.properties.approvedObservationStations]
+type = "array"
+[resources.responses.200.content."application/ld+json".schema.properties.responsibleCounties.items]
+type = "string"
+format = "uri"
+[resources.responses.200.content."application/ld+json".schema.properties.responsibleForecastZones.items]
+type = "string"
+format = "uri"
+[resources.responses.200.content."application/ld+json".schema.properties.responsibleFireZones.items]
+type = "string"
+format = "uri"
+[resources.responses.200.content."application/ld+json".schema.properties.approvedObservationStations.items]
+type = "string"
+format = "uri"
+[resources.responses.200.content."application/ld+json".schema.properties.address.properties."@type"]
+enum = [ "PostalAddress",]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.address.properties.streetAddress]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.address.properties.addressLocality]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.address.properties.addressRegion]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.address.properties.postalCode]
+type = "string"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/offices/{officeId}/headlines/{headlineId}"
+method = "get"
+parameters = []
+description = "Returns a specific news headline for a given NWS office"
+tags = []
+operationId = "office_headline"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties."@id"]
+type = "string"
+format = "uri"
+[resources.responses.200.content."application/ld+json".schema.properties.id]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.office]
+type = "string"
+format = "uri"
+[resources.responses.200.content."application/ld+json".schema.properties.important]
+type = "boolean"
+[resources.responses.200.content."application/ld+json".schema.properties.issuanceTime]
+type = "string"
+format = "date-time"
+[resources.responses.200.content."application/ld+json".schema.properties.link]
+type = "string"
+format = "uri"
+[resources.responses.200.content."application/ld+json".schema.properties.name]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.title]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.summary]
+type = "string"
+nullable = true
+[resources.responses.200.content."application/ld+json".schema.properties.content]
+type = "string"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/offices/{officeId}/headlines"
+method = "get"
+parameters = []
+description = "Returns a list of news headlines for a given NWS office"
+tags = []
+operationId = "office_headlines"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/ld+json".schema]
+required = [ "@context", "@graph",]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph"]
+type = "array"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph".items]
+"$ref" = "#/components/schemas/OfficeHeadline"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/points/{point}"
+method = "get"
+parameters = []
+description = "Returns metadata about a given latitude/longitude point"
+tags = []
+operationId = "point"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/geo+json".schema]
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+"$ref" = "#/components/schemas/GeoJsonFeature"
+
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+type = "object"
+
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.properties]
+"$ref" = "#/components/schemas/Point"
+[resources.responses.200.content."application/ld+json".schema]
+[[resources.responses.200.content."application/ld+json".schema.allOf]]
+"$ref" = "#/components/schemas/Point"
+
+[[resources.responses.200.content."application/ld+json".schema.allOf]]
+required = [ "@context", "geometry",]
+type = "object"
+
+[resources.responses.200.content."application/ld+json".schema.allOf.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.allOf.properties.geometry]
+"$ref" = "#/components/schemas/GeometryString"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/points/{point}/stations"
+method = "get"
+parameters = []
+description = "Returns a list of observation stations for a given point"
+tags = []
+operationId = "point_stations"
+
+[resources.responses.301]
+description = "redirect to gridpoint stations"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/radar/servers"
+method = "get"
+description = "Returns a list of radar servers"
+tags = []
+operationId = "radar_servers"
+[[resources.parameters]]
+name = "reportingHost"
+in = "query"
+description = "Show records from specific reporting host"
+
+[resources.parameters.schema]
+type = "string"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/radar/servers/{id}"
+method = "get"
+description = "Returns metadata about a given radar server"
+tags = []
+operationId = "radar_server"
+[[resources.parameters]]
+name = "reportingHost"
+in = "query"
+description = "Show records from specific reporting host"
+
+[resources.parameters.schema]
+type = "string"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/radar/stations"
+method = "get"
+description = "Returns a list of radar stations"
+tags = []
+operationId = "radar_stations"
+[[resources.parameters]]
+name = "stationType"
+in = "query"
+description = "Limit results to a specific station type or types"
+style = "form"
+explode = false
+
+[resources.parameters.schema]
+type = "array"
+[resources.parameters.schema.items]
+pattern = "^[A-Za-z0-9-]+$"
+type = "string"
+[[resources.parameters]]
+name = "reportingHost"
+in = "query"
+description = "Show RDA and latency info from specific reporting host"
+
+[resources.parameters.schema]
+type = "string"
+[[resources.parameters]]
+name = "host"
+in = "query"
+description = "Show latency info from specific LDM host"
+
+[resources.parameters.schema]
+type = "string"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/radar/stations/{stationId}"
+method = "get"
+description = "Returns metadata about a given radar station"
+tags = []
+operationId = "radar_station"
+[[resources.parameters]]
+name = "reportingHost"
+in = "query"
+description = "Show RDA and latency info from specific reporting host"
+
+[resources.parameters.schema]
+type = "string"
+[[resources.parameters]]
+name = "host"
+in = "query"
+description = "Show latency info from specific LDM host"
+
+[resources.parameters.schema]
+type = "string"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/radar/stations/{stationId}/alarms"
+method = "get"
+parameters = []
+description = "Returns metadata about a given radar station alarms"
+tags = []
+operationId = "radar_station_alarms"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/radar/queues/{host}"
+method = "get"
+description = "Returns metadata about a given radar queue"
+tags = []
+operationId = "radar_queue"
+[[resources.parameters]]
+name = "limit"
+in = "query"
+description = "Record limit"
+
+[resources.parameters.schema]
+maximum = 500
+minimum = 1
+type = "integer"
+[[resources.parameters]]
+name = "arrived"
+in = "query"
+description = "Range for arrival time"
+
+[resources.parameters.schema]
+description = "A time interval in ISO 8601 format. This can be one of:\n\n    1. Start and end time\n    2. Start time and duration\n    3. Duration and end time\nThe string \"NOW\" can also be used in place of a start/end time.\n"
+[[resources.parameters.schema.oneOf]]
+pattern = "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$"
+type = "string"
+example = "2007-03-01T13:00:00Z/2008-05-11T15:30:00Z"
+
+[[resources.parameters.schema.oneOf]]
+pattern = "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?$"
+type = "string"
+example = "2007-03-01T13:00:00Z/P1Y2M10DT2H30M"
+
+[[resources.parameters.schema.oneOf]]
+pattern = "^P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$"
+type = "string"
+example = "P1Y2M10DT2H30M/2008-05-11T15:30:00Z"
+
+[[resources.parameters]]
+name = "created"
+in = "query"
+description = "Range for creation time"
+
+[resources.parameters.schema]
+description = "A time interval in ISO 8601 format. This can be one of:\n\n    1. Start and end time\n    2. Start time and duration\n    3. Duration and end time\nThe string \"NOW\" can also be used in place of a start/end time.\n"
+[[resources.parameters.schema.oneOf]]
+pattern = "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$"
+type = "string"
+example = "2007-03-01T13:00:00Z/2008-05-11T15:30:00Z"
+
+[[resources.parameters.schema.oneOf]]
+pattern = "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?$"
+type = "string"
+example = "2007-03-01T13:00:00Z/P1Y2M10DT2H30M"
+
+[[resources.parameters.schema.oneOf]]
+pattern = "^P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$"
+type = "string"
+example = "P1Y2M10DT2H30M/2008-05-11T15:30:00Z"
+
+[[resources.parameters]]
+name = "published"
+in = "query"
+description = "Range for publish time"
+
+[resources.parameters.schema]
+description = "A time interval in ISO 8601 format. This can be one of:\n\n    1. Start and end time\n    2. Start time and duration\n    3. Duration and end time\nThe string \"NOW\" can also be used in place of a start/end time.\n"
+[[resources.parameters.schema.oneOf]]
+pattern = "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$"
+type = "string"
+example = "2007-03-01T13:00:00Z/2008-05-11T15:30:00Z"
+
+[[resources.parameters.schema.oneOf]]
+pattern = "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?$"
+type = "string"
+example = "2007-03-01T13:00:00Z/P1Y2M10DT2H30M"
+
+[[resources.parameters.schema.oneOf]]
+pattern = "^P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$"
+type = "string"
+example = "P1Y2M10DT2H30M/2008-05-11T15:30:00Z"
+
+[[resources.parameters]]
+name = "station"
+in = "query"
+description = "Station identifier"
+
+[resources.parameters.schema]
+type = "string"
+[[resources.parameters]]
+name = "type"
+in = "query"
+description = "Record type"
+
+[resources.parameters.schema]
+type = "string"
+[[resources.parameters]]
+name = "feed"
+in = "query"
+description = "Originating product feed"
+
+[resources.parameters.schema]
+type = "string"
+[[resources.parameters]]
+name = "resolution"
+in = "query"
+description = "Resolution version"
+
+[resources.parameters.schema]
+minimum = 1
+type = "integer"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/radar/profilers/{stationId}"
+method = "get"
+description = "Returns metadata about a given radar wind profiler"
+tags = []
+operationId = "radar_profiler"
+[[resources.parameters]]
+name = "time"
+in = "query"
+description = "Time interval"
+
+[resources.parameters.schema]
+description = "A time interval in ISO 8601 format. This can be one of:\n\n    1. Start and end time\n    2. Start time and duration\n    3. Duration and end time\nThe string \"NOW\" can also be used in place of a start/end time.\n"
+[[resources.parameters.schema.oneOf]]
+pattern = "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$"
+type = "string"
+example = "2007-03-01T13:00:00Z/2008-05-11T15:30:00Z"
+
+[[resources.parameters.schema.oneOf]]
+pattern = "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)\\/P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?$"
+type = "string"
+example = "2007-03-01T13:00:00Z/P1Y2M10DT2H30M"
+
+[[resources.parameters.schema.oneOf]]
+pattern = "^P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?\\/(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(Z|[+-]\\d{2}:?\\d{2}?)|NOW)$"
+type = "string"
+example = "P1Y2M10DT2H30M/2008-05-11T15:30:00Z"
+
+[[resources.parameters]]
+name = "interval"
+in = "query"
+description = "Averaging interval"
+
+[resources.parameters.schema]
+pattern = "^P(\\d+Y)?(\\d+M)?(\\d+D)?(T(\\d+H)?(\\d+M)?(\\d+S)?)?$"
+type = "string"
+description = "A time duration in ISO 8601 format."
+example = "P2DT12H"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/products"
+method = "get"
+description = "Returns a list of text products"
+tags = []
+operationId = "products_query"
+[[resources.parameters]]
+name = "location"
+in = "query"
+description = "Location id"
+style = "form"
+explode = false
+
+[resources.parameters.schema]
+type = "array"
+[resources.parameters.schema.items]
+type = "string"
+[[resources.parameters]]
+name = "start"
+in = "query"
+description = "Start time"
+
+[resources.parameters.schema]
+type = "string"
+format = "date-time"
+[[resources.parameters]]
+name = "end"
+in = "query"
+description = "End time"
+
+[resources.parameters.schema]
+type = "string"
+format = "date-time"
+[[resources.parameters]]
+name = "office"
+in = "query"
+description = "Issuing office"
+style = "form"
+explode = false
+
+[resources.parameters.schema]
+type = "array"
+[resources.parameters.schema.items]
+pattern = "^[A-Z]{4}$"
+type = "string"
+[[resources.parameters]]
+name = "wmoid"
+in = "query"
+description = "WMO id code"
+style = "form"
+explode = false
+
+[resources.parameters.schema]
+type = "array"
+[resources.parameters.schema.items]
+pattern = "^[A-Z]{4}\\d{2}$"
+type = "string"
+[[resources.parameters]]
+name = "type"
+in = "query"
+description = "Product code"
+style = "form"
+explode = false
+
+[resources.parameters.schema]
+type = "array"
+[resources.parameters.schema.items]
+pattern = "^\\w{3}$"
+type = "string"
+[[resources.parameters]]
+name = "limit"
+in = "query"
+description = "Limit"
+
+[resources.parameters.schema]
+maximum = 500
+minimum = 1
+type = "integer"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph"]
+type = "array"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph".items]
+"$ref" = "#/components/schemas/TextProduct"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/products/locations"
+method = "get"
+parameters = []
+description = "Returns a list of valid text product issuance locations"
+tags = []
+operationId = "product_locations"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties.locations]
+type = "object"
+[resources.responses.200.content."application/ld+json".schema.properties.locations.additionalProperties]
+type = "string"
+nullable = true
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/products/types"
+method = "get"
+parameters = []
+description = "Returns a list of valid text product types and codes"
+tags = []
+operationId = "product_types"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph"]
+type = "array"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph".items]
+required = [ "productCode", "productName",]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@graph".items.properties.productCode]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph".items.properties.productName]
+type = "string"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/products/{productId}"
+method = "get"
+parameters = []
+description = "Returns a specific text product"
+tags = []
+operationId = "product"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties."@id"]
+type = "string"
+format = "uri"
+[resources.responses.200.content."application/ld+json".schema.properties.id]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.wmoCollectiveId]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.issuingOffice]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.issuanceTime]
+type = "string"
+format = "date-time"
+[resources.responses.200.content."application/ld+json".schema.properties.productCode]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.productName]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties.productText]
+type = "string"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/products/types/{typeId}"
+method = "get"
+parameters = []
+description = "Returns a list of text products of a given type"
+tags = []
+operationId = "products_type"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph"]
+type = "array"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph".items]
+"$ref" = "#/components/schemas/TextProduct"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/products/types/{typeId}/locations"
+method = "get"
+parameters = []
+description = "Returns a list of valid text product issuance locations for a given product type"
+tags = []
+operationId = "products_type_locations"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties.locations]
+type = "object"
+[resources.responses.200.content."application/ld+json".schema.properties.locations.additionalProperties]
+type = "string"
+nullable = true
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/products/locations/{locationId}/types"
+method = "get"
+parameters = []
+description = "Returns a list of valid text product types for a given issuance location"
+tags = []
+operationId = "location_products"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph"]
+type = "array"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph".items]
+required = [ "productCode", "productName",]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@graph".items.properties.productCode]
+type = "string"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph".items.properties.productName]
+type = "string"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/products/types/{typeId}/locations/{locationId}"
+method = "get"
+parameters = []
+description = "Returns a list of text products of a given type for a given issuance location"
+tags = []
+operationId = "products_type_location"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph"]
+type = "array"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph".items]
+"$ref" = "#/components/schemas/TextProduct"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/zones"
+method = "get"
+description = "Returns a list of zones"
+tags = []
+operationId = "zone_list"
+[[resources.parameters]]
+name = "id"
+in = "query"
+description = "Zone ID (forecast or county)"
+style = "form"
+explode = false
+
+[resources.parameters.schema]
+type = "array"
+[resources.parameters.schema.items]
+"$ref" = "#/components/schemas/NWSZoneID"
+[[resources.parameters]]
+name = "area"
+in = "query"
+description = "State/marine area code"
+style = "form"
+explode = false
+
+[resources.parameters.schema]
+type = "array"
+[resources.parameters.schema.items]
+"$ref" = "#/components/schemas/AreaCode"
+[[resources.parameters]]
+name = "region"
+in = "query"
+description = "Region code"
+style = "form"
+explode = false
+
+[resources.parameters.schema]
+type = "array"
+[resources.parameters.schema.items]
+"$ref" = "#/components/schemas/RegionCode"
+[[resources.parameters]]
+name = "type"
+in = "query"
+description = "Zone type"
+style = "form"
+explode = false
+
+[resources.parameters.schema]
+type = "array"
+[resources.parameters.schema.items]
+"$ref" = "#/components/schemas/NWSZoneType"
+[[resources.parameters]]
+name = "point"
+in = "query"
+description = "Point (latitude,longitude)"
+
+[resources.parameters.schema]
+pattern = "^(-?\\d+(?:\\.\\d+)?),(-?\\d+(?:\\.\\d+)?)$"
+type = "string"
+[[resources.parameters]]
+name = "include_geometry"
+in = "query"
+description = "Include geometry in results (true/false)"
+
+[resources.parameters.schema]
+type = "boolean"
+[[resources.parameters]]
+name = "limit"
+in = "query"
+description = "Limit"
+
+[resources.parameters.schema]
+minimum = 1
+type = "integer"
+[[resources.parameters]]
+name = "effective"
+in = "query"
+description = "Effective date/time"
+
+[resources.parameters.schema]
+type = "string"
+format = "date-time"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/geo+json".schema]
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+"$ref" = "#/components/schemas/GeoJsonFeatureCollection"
+
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+type = "object"
+
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features]
+type = "array"
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features.items]
+type = "object"
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features.items.properties.properties]
+"$ref" = "#/components/schemas/Zone"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph"]
+type = "array"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph".items]
+"$ref" = "#/components/schemas/Zone"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/zones/{type}"
+method = "get"
+description = "Returns a list of zones of a given type"
+tags = []
+operationId = "zone_list_type"
+[[resources.parameters]]
+name = "id"
+in = "query"
+description = "Zone ID (forecast or county)"
+style = "form"
+explode = false
+
+[resources.parameters.schema]
+type = "array"
+[resources.parameters.schema.items]
+"$ref" = "#/components/schemas/NWSZoneID"
+[[resources.parameters]]
+name = "area"
+in = "query"
+description = "State/marine area code"
+style = "form"
+explode = false
+
+[resources.parameters.schema]
+type = "array"
+[resources.parameters.schema.items]
+"$ref" = "#/components/schemas/AreaCode"
+[[resources.parameters]]
+name = "region"
+in = "query"
+description = "Region code"
+style = "form"
+explode = false
+
+[resources.parameters.schema]
+type = "array"
+[resources.parameters.schema.items]
+"$ref" = "#/components/schemas/RegionCode"
+[[resources.parameters]]
+name = "type"
+in = "query"
+description = "Zone type"
+style = "form"
+explode = false
+
+[resources.parameters.schema]
+type = "array"
+[resources.parameters.schema.items]
+"$ref" = "#/components/schemas/NWSZoneType"
+[[resources.parameters]]
+name = "point"
+in = "query"
+description = "Point (latitude,longitude)"
+
+[resources.parameters.schema]
+pattern = "^(-?\\d+(?:\\.\\d+)?),(-?\\d+(?:\\.\\d+)?)$"
+type = "string"
+[[resources.parameters]]
+name = "include_geometry"
+in = "query"
+description = "Include geometry in results (true/false)"
+
+[resources.parameters.schema]
+type = "boolean"
+[[resources.parameters]]
+name = "limit"
+in = "query"
+description = "Limit"
+
+[resources.parameters.schema]
+minimum = 1
+type = "integer"
+[[resources.parameters]]
+name = "effective"
+in = "query"
+description = "Effective date/time"
+
+[resources.parameters.schema]
+type = "string"
+format = "date-time"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/geo+json".schema]
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+"$ref" = "#/components/schemas/GeoJsonFeatureCollection"
+
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+type = "object"
+
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features]
+type = "array"
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features.items]
+type = "object"
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features.items.properties.properties]
+"$ref" = "#/components/schemas/Zone"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph"]
+type = "array"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph".items]
+"$ref" = "#/components/schemas/Zone"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/zones/{type}/{zoneId}"
+method = "get"
+description = "Returns metadata about a given zone"
+tags = []
+operationId = "zone"
+[[resources.parameters]]
+name = "effective"
+in = "query"
+description = "Effective date/time"
+
+[resources.parameters.schema]
+type = "string"
+format = "date-time"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/geo+json".schema]
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+"$ref" = "#/components/schemas/GeoJsonFeature"
+
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+type = "object"
+
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.properties]
+"$ref" = "#/components/schemas/Zone"
+[resources.responses.200.content."application/ld+json".schema]
+"$ref" = "#/components/schemas/Zone"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/zones/{type}/{zoneId}/forecast"
+method = "get"
+parameters = []
+description = "Returns the current zone forecast for a given zone"
+tags = []
+operationId = "zone_forecast"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/geo+json".schema]
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+"$ref" = "#/components/schemas/GeoJsonFeature"
+
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+type = "object"
+
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.properties]
+"$ref" = "#/components/schemas/ZoneForecast"
+[resources.responses.200.content."application/ld+json".schema]
+"$ref" = "#/components/schemas/ZoneForecast"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/zones/forecast/{zoneId}/observations"
+method = "get"
+description = "Returns a list of observations for a given zone"
+tags = []
+operationId = "zone_obs"
+[[resources.parameters]]
+name = "start"
+in = "query"
+description = "Start date/time"
+
+[resources.parameters.schema]
+type = "string"
+format = "date-time"
+[[resources.parameters]]
+name = "end"
+in = "query"
+description = "End date/time"
+
+[resources.parameters.schema]
+type = "string"
+format = "date-time"
+[[resources.parameters]]
+name = "limit"
+in = "query"
+description = "Limit"
+
+[resources.parameters.schema]
+maximum = 500
+minimum = 1
+type = "integer"
+
+[resources.responses.200]
+description = "success"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
+[resources.responses.200.headers.X-Correlation-Id]
+"$ref" = "#/components/headers/CorrelationId"
+[resources.responses.200.headers.X-Request-Id]
+"$ref" = "#/components/headers/RequestId"
+[resources.responses.200.headers.X-Server-Id]
+"$ref" = "#/components/headers/ServerId"
+[resources.responses.200.content."application/geo+json".schema]
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+"$ref" = "#/components/schemas/GeoJsonFeatureCollection"
+
+[[resources.responses.200.content."application/geo+json".schema.allOf]]
+type = "object"
+
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features]
+type = "array"
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features.items]
+type = "object"
+[resources.responses.200.content."application/geo+json".schema.allOf.properties.features.items.properties.properties]
+"$ref" = "#/components/schemas/Observation"
+[resources.responses.200.content."application/ld+json".schema]
+type = "object"
+additionalProperties = false
+[resources.responses.200.content."application/ld+json".schema.properties."@context"]
+"$ref" = "#/components/schemas/JsonLdContext"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph"]
+type = "array"
+[resources.responses.200.content."application/ld+json".schema.properties."@graph".items]
+"$ref" = "#/components/schemas/Observation"
+[[resources]]
+server_url = "https://api.weather.gov"
+path = "/zones/forecast/{zoneId}/stations"
+method = "get"
+parameters = []
+description = "Returns a list of observation stations for a given zone"
+tags = []
+operationId = "zone_stations"
+
+[resources.responses.200]
+"$ref" = "#/components/responses/ObservationStationCollection"
+[resources.responses.default]
+"$ref" = "#/components/responses/Error"
