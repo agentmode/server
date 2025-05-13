@@ -257,6 +257,22 @@ authentication_form_type = "api"
 openapi_spec_url = "https://www.elastic.co/docs/api/doc/elasticsearch.json"
 filter_to_operator_ids = ["search-1"]
 
+[[Wiki]]
+name = "Confluence"
+logo = "resources/images/confluence.svg"
+connection_type = "api"
+authentication_form_type = "api"
+openapi_spec_url = "https://dac-static.atlassian.com/cloud/confluence/swagger.v3.json?_v=1.7875.0-0.1323.0"
+filter_to_paths = ["/wiki/rest/api/search"]
+
+[[Tickets]]
+name = "Jira"
+logo = "resources/images/jira.svg"
+connection_type = "api"
+authentication_form_type = "api"
+openapi_spec_url = "https://dac-static.atlassian.com/cloud/jira/platform/swagger.v3.json?_v=1.7875.0-0.1323.0"
+filter_to_paths = ["/rest/api/2/issue/{issueIdOrKey}", "/rest/api/2/search/jql"]
+
 # [[Logs]]
 # name = "Sumo Logic"
 # logo = "resources/images/sumo_logic.svg"

@@ -1,0 +1,217 @@
+{
+    "resources": [
+        {
+            "server_url": "//your-domain.atlassian.net",
+            "path": "/wiki/rest/api/search",
+            "method": "get",
+            "parameters": [
+                {
+                    "name": "cql",
+                    "in": "query",
+                    "description": "The CQL query to be used for the search. See\n[Advanced Searching using CQL](https://developer.atlassian.com/cloud/confluence/advanced-searching-using-cql/)\nfor instructions on how to build a CQL query.",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "cqlcontext",
+                    "in": "query",
+                    "description": "The space, content, and content status to execute the search\nagainst.\n\n- `spaceKey` Key of the space to search against. Optional.\n- `contentId` ID of the content to search against. Optional. Must be\nin the space specified by `spaceKey`.\n- `contentStatuses` Content statuses to search against. Optional.\n\nSpecify these values in an object. For example,\n`cqlcontext={%22spaceKey%22:%22TEST%22, %22contentId%22:%22123%22}`",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "cursor",
+                    "in": "query",
+                    "description": "Pointer to a set of search results, returned as part of the `next` or `prev` URL from the previous search call.",
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                {
+                    "name": "next",
+                    "in": "query",
+                    "schema": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                {
+                    "name": "prev",
+                    "in": "query",
+                    "schema": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "description": "The maximum number of content objects to return per page.\nNote, this may be restricted by fixed system limits.",
+                    "schema": {
+                        "minimum": 0,
+                        "type": "integer",
+                        "format": "int32",
+                        "default": 25
+                    }
+                },
+                {
+                    "name": "start",
+                    "in": "query",
+                    "description": "The start point of the collection to return",
+                    "schema": {
+                        "minimum": 0,
+                        "type": "integer",
+                        "format": "int32",
+                        "default": 0
+                    }
+                },
+                {
+                    "name": "includeArchivedSpaces",
+                    "in": "query",
+                    "description": "Whether to include content from archived spaces in the results.",
+                    "schema": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                {
+                    "name": "excludeCurrentSpaces",
+                    "in": "query",
+                    "description": "Whether to exclude current spaces and only show archived spaces.",
+                    "schema": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                {
+                    "name": "excerpt",
+                    "in": "query",
+                    "description": "The excerpt strategy to apply to the result",
+                    "schema": {
+                        "type": "string",
+                        "default": "highlight",
+                        "enum": [
+                            "highlight",
+                            "indexed",
+                            "none",
+                            "highlight_unescaped",
+                            "indexed_unescaped"
+                        ]
+                    }
+                },
+                {
+                    "name": "sitePermissionTypeFilter",
+                    "in": "query",
+                    "description": "Filters users by permission type. Use `none` to default to licensed users, `externalCollaborator`\nfor external/guest users, and `all` to include all permission types.",
+                    "schema": {
+                        "type": "string",
+                        "default": "none",
+                        "enum": [
+                            "all",
+                            "externalCollaborator",
+                            "none"
+                        ]
+                    }
+                },
+                {
+                    "name": "_",
+                    "in": "query",
+                    "schema": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                },
+                {
+                    "name": "expand",
+                    "in": "query",
+                    "style": "form",
+                    "explode": false,
+                    "schema": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Returned if the requested results are returned.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "_links",
+                                    "cqlQuery",
+                                    "limit",
+                                    "results",
+                                    "searchDuration",
+                                    "size",
+                                    "start",
+                                    "totalSize"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "results": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/SearchResult"
+                                        }
+                                    },
+                                    "start": {
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "limit": {
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "size": {
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "totalSize": {
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "cqlQuery": {
+                                        "type": "string"
+                                    },
+                                    "searchDuration": {
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "archivedResultCount": {
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "_links": {
+                                        "$ref": "#/components/schemas/GenericLinks"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "400": {
+                    "description": "Returned if the CQL query cannot be parsed.",
+                    "content": {}
+                },
+                "403": {
+                    "description": "Returned if the calling user does not have permission to access\nConfluence.",
+                    "content": {}
+                }
+            },
+            "request_body_parameters": {},
+            "description": "Searches for content using the\n[Confluence Query Language (CQL)](https://developer.atlassian.com/cloud/confluence/advanced-searching-using-cql/).\n\n**Note that CQL input queries submitted through the `/wiki/rest/api/search` endpoint no longer support user-specific fields like `user`, `user.fullname`, `user.accountid`, and `user.userkey`.** \nSee this [deprecation notice](https://developer.atlassian.com/cloud/confluence/deprecation-notice-search-api/) for more details.\n\nExample initial call:\n```\n/wiki/rest/api/search?cql=type=page&limit=25\n```\n\nExample response:\n```\n{\n  \"results\": [\n    { ... },\n    { ... },\n    ...\n    { ... }\n  ],\n  \"limit\": 25,\n  \"size\": 25,\n  ...\n  \"_links\": {\n    \"base\": \"<url>\",\n    \"context\": \"<url>\",\n    \"next\": \"/rest/api/search?cql=type=page&limit=25&cursor=raNDoMsTRiNg\",\n    \"self\": \"<url>\"\n  }\n}\n```\n\nWhen additional results are available, returns `next` and `prev` URLs to retrieve them in subsequent calls. The URLs each contain a cursor that points to the appropriate set of results. Use `limit` to specify the number of results returned in each call.\n\nExample subsequent call (taken from example response):\n```\n/wiki/rest/api/search?cql=type=page&limit=25&cursor=raNDoMsTRiNg\n```\nThe response to this will have a `prev` URL similar to the `next` in the example response.\n\nIf the expand query parameter is used with the `body.export_view` and/or `body.styled_view` properties, then the query limit parameter will be restricted to a maximum value of 25.\n\n**[Permissions](https://confluence.atlassian.com/x/_AozKw) required**:\nPermission to view the entities. Note, only entities that the user has\npermission to view will be returned.",
+            "tags": [
+                "Search"
+            ],
+            "operationId": "searchByCQL"
+        }
+    ],
+    "tools": []
+}

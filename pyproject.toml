@@ -1,6 +1,6 @@
 [project]
 name = "agentmode"
-version = "0.1.9"
+version = "0.1.10"
 description = "All-in-1 MCP server for developers"
 readme = "README.md"
 requires-python = ">=3.13"
