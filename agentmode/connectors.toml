@@ -188,6 +188,18 @@ logo = "resources/images/airflow.png"
 connection_type = "api"
 authentication_form_type = "api"
 openapi_spec_url = "https://airflow.apache.org/docs/apache-airflow/stable/_specs/v1-rest-api-generated.yaml"
+filter_to_operator_ids = [
+    "get_dag_run",
+    "get_dag_runs", 
+    "get_dags", 
+    "get_dag", 
+    "get_dag_details", 
+    "get_jobs", 
+    "get_tasks", 
+    "get_task_instances", 
+    "get_task", 
+    "get_log"
+]
 
 [["Data Pipelines"]]
 name = "Prefect"
@@ -195,6 +207,13 @@ logo = "resources/images/prefect.svg"
 connection_type = "api"
 authentication_form_type = "api"
 openapi_spec_url = "https://api.prefect.cloud/api/openapi.json"
+filter_to_operator_ids = [
+    "get_flow_run_logs_api_accounts__account_id__workspaces__workspace_id__flow_runs__id__logs_get",
+    "read_flow_api_accounts__account_id__workspaces__workspace_id__flows__id__get",
+    "read_flows_api_accounts__account_id__workspaces__workspace_id__flows_filter_post",
+    "read_flow_runs_api_accounts__account_id__workspaces__workspace_id__flow_runs_filter_post",
+    "read_flow_runs_minimal_api_accounts__account_id__workspaces__workspace_id__flow_runs_filter_minimal_post"
+]
 
 [["Source Control"]]
 name = "GitHub"
@@ -213,44 +232,48 @@ decode_responses = {"repos/get_content" = "content"}
         "items[].url"
 ]
 
-[["Source Control"]]
-name = "Gitlab"
-logo = "resources/images/gitlab.svg"
-connection_type = "api"
-authentication_form_type = "api"
-openapi_spec_url = "https://gitlab.com/gitlab-org/gitlab/-/raw/master/doc/api/openapi/openapi_v2.yaml"
+# https://docs.gitlab.com/api/search/ isn't mentioned in the openAPI spec, which is incomplete
+# [["Source Control"]]
+# name = "Gitlab"
+# logo = "resources/images/gitlab.svg"
+# connection_type = "api"
+# authentication_form_type = "api"
+# openapi_spec_url = "https://gitlab.com/gitlab-org/gitlab/-/raw/master/doc/api/openapi/openapi_v2.yaml"
 
 [["Source Control"]]
 name = "Bitbucket"
 logo = "resources/images/bitbucket.png"
 connection_type = "api"
 authentication_form_type = "api"
-openapi_spec_url = "https://dac-static.atlassian.com/cloud/bitbucket/swagger.v3.json?_v=2.300.101-0.1323.0"
+openapi_spec_url = "https://dac-static.atlassian.com/cloud/bitbucket/swagger.v3.json?_v=2.300.103-0.1323.0"
+filter_to_operator_ids = ["searchWorkspace", "searchTeam"]
+filter_to_paths = ["/repositories/{workspace}/{repo_slug}/src/{commit}/{path}"]
 
 [[Logs]]
 name = "Elasticsearch"
 logo = "resources/images/elastic.svg"
 connection_type = "api"
 authentication_form_type = "api"
-openapi_spec_url = "https://api.elastic-cloud.com/api/v1/api-docs-user/swagger.json"
+openapi_spec_url = "https://www.elastic.co/docs/api/doc/elasticsearch.json"
+filter_to_operator_ids = ["search-1"]
 
-[[Logs]]
-name = "Sumo Logic"
-logo = "resources/images/sumo_logic.svg"
-connection_type = "api"
-authentication_form_type = "api"
-openapi_spec_url = "https://api.sumologic.com/docs/sumologic-api.yaml"
+# [[Logs]]
+# name = "Sumo Logic"
+# logo = "resources/images/sumo_logic.svg"
+# connection_type = "api"
+# authentication_form_type = "api"
+# openapi_spec_url = "https://api.sumologic.com/docs/sumologic-api.yaml"
 
-#[[Logs]]
-#name = "Grafana"
-#logo = "resources/images/a.svg"
-#connection_type = "api"
-#authentication_form_type = "api"
-#openapi_spec_url = "https://raw.githubusercontent.com/grafana/grafana/main/public/openapi3.json"
+# [[Logs]]
+# name = "Grafana"
+# logo = "resources/images/a.svg"
+# connection_type = "api"
+# authentication_form_type = "api"
+# openapi_spec_url = "https://raw.githubusercontent.com/grafana/grafana/main/public/openapi3.json"
 
-[["Package Repositories"]]
-name = "Docker Hub"
-logo = "resources/images/docker.svg"
-connection_type = "api"
-authentication_form_type = "api"
-openapi_spec_url = "https://docs.docker.com/reference/api/hub/latest.yaml"
+# [["Package Repositories"]]
+# name = "Docker Hub"
+# logo = "resources/images/docker.svg"
+# connection_type = "api"
+# authentication_form_type = "api"
+# openapi_spec_url = "https://docs.docker.com/reference/api/hub/latest.yaml"

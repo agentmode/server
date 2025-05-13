@@ -22,6 +22,7 @@ class OpenAPIToMCPConverter:
     openapi_spec_url: str = None
     openapi_spec_file_path: str = None
     filter_to_operator_ids: list = None
+    filter_to_paths: list = None
     read_only: bool = False
     filter_to_relevant_api_methods: bool = True
 
@@ -62,12 +63,12 @@ class OpenAPIToMCPConverter:
             logger.info(f"Filtered resources operationIds: {[resource['operationId'] for resource in self.api_connection.mcp_resources]}")
             logger.info(f"Filtered tools operationIds: {[tool['operationId'] for tool in self.api_connection.mcp_tools]}")
 
-        if self.filter_to_operator_ids:
-            logger.info(f"Filtering resources and tools to operator IDs: {self.filter_to_operator_ids}")
-            # Filter the resources and tools based on operator IDs
-            self.api_connection.mcp_resources = [resource for resource in self.api_connection.mcp_resources if resource['operationId'] in self.filter_to_operator_ids]
-            self.api_connection.mcp_tools = [tool for tool in self.api_connection.mcp_tools if tool['operationId'] in self.filter_to_operator_ids]
-        
+        if self.filter_to_operator_ids or self.filter_to_paths:
+            logger.info(f"Filtering resources and tools to operator IDs: {self.filter_to_operator_ids}, paths: {self.filter_to_paths}")
+            # Filter the resources and tools based on operator IDs and paths
+            self.api_connection.mcp_resources = [resource for resource in self.api_connection.mcp_resources if resource['operationId'] in self.filter_to_operator_ids or resource['path'] in self.filter_to_paths]
+            self.api_connection.mcp_tools = [tool for tool in self.api_connection.mcp_tools if tool['operationId'] in self.filter_to_operator_ids or tool['path'] in self.filter_to_paths]
+
         self.save_results({'resources': self.api_connection.mcp_resources, 'tools': self.api_connection.mcp_tools}, self.filter_to_relevant_api_methods)
 
     async def get_openapi_spec(self):
