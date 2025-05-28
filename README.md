@@ -2,6 +2,10 @@
 
 AgentMode is an all-in-one Model Context Protocol (MCP) server that connects your coding AI to dozens of databases, data warehouses, data pipelines, cloud services, and more. This extension is designed to streamline your development workflow by providing seamless integration with various data and cloud platforms.
 
+<a href="https://glama.ai/mcp/servers/@agentmode/server">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@agentmode/server/badge" alt="AgentMode MCP server" />
+</a>
+
 ![flow diagram!](https://cdn.hashnode.com/res/hashnode/image/upload/v1746248830909/723435d9-255c-43a2-a2a2-1691a161e45f.webp "AgentMode flow diagram")
 
 ## Installation 👨‍💻
