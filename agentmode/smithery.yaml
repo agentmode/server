@@ -1,0 +1,22 @@
+# Smithery configuration file: https://smithery.ai/docs/build/project-config
+
+build:
+  dockerBuildPath: ..
+startCommand:
+  type: stdio
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => {
+      const args = [];
+      for (const [key, value] of Object.entries(config || {})) {
+        args.push(`--${key}`, String(value));
+      }
+      return {command: 'agentmode', args};
+    }
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    description: Key-value pairs for connection parameters; keys are
+      'connectionName+property'.
+  exampleConfig: {}
