@@ -215,23 +215,6 @@ filter_to_operator_ids = [
     "read_flow_runs_minimal_api_accounts__account_id__workspaces__workspace_id__flow_runs_filter_minimal_post"
 ]
 
-[["Source Control"]]
-name = "GitHub"
-logo = "resources/images/github.png"
-connection_type = "api"
-authentication_form_type = "api"
-default_authentication_method = "Bearer Token"
-openapi_spec_url = "https://raw.githubusercontent.com/github/rest-api-description/refs/heads/main/descriptions/api.github.com/api.github.com.json"
-filter_to_operator_ids = ["search/code", "repos/get-content"]
-decode_responses = {"repos/get_content" = "content"}
-["Source Control".filter_responses]
-"search/code" = [
-        "items[].repository.html_url", 
-        "items[].repository.full_name", 
-        "items[].path", 
-        "items[].url"
-]
-
 # https://docs.gitlab.com/api/search/ isn't mentioned in the openAPI spec, which is incomplete
 # [["Source Control"]]
 # name = "Gitlab"
@@ -248,14 +231,6 @@ authentication_form_type = "api"
 openapi_spec_url = "https://dac-static.atlassian.com/cloud/bitbucket/swagger.v3.json?_v=2.300.103-0.1323.0"
 filter_to_operator_ids = ["searchWorkspace", "searchTeam"]
 filter_to_paths = ["/repositories/{workspace}/{repo_slug}/src/{commit}/{path}"]
-
-[[Logs]]
-name = "Elasticsearch"
-logo = "resources/images/elastic.svg"
-connection_type = "api"
-authentication_form_type = "api"
-openapi_spec_url = "https://www.elastic.co/docs/api/doc/elasticsearch.json"
-filter_to_operator_ids = ["search-1"]
 
 [[Wiki]]
 name = "Confluence"

@@ -25,7 +25,6 @@ from agentmode.logs import logger
 from agentmode.database import DatabaseConnection
 from agentmode.api.api_connection import APIConnection
 from agentmode.api.connectors.api_connector import APIConnector
-from agentmode.connector_setup import create_gradio_interface
 
 HOME_DIRECTORY = platformdirs.user_data_dir('agentmode', ensure_exists=True)
 CONNECTIONS_FILE = os.path.join(HOME_DIRECTORY, "connections.toml")
@@ -44,6 +43,7 @@ class AppContext:
 
 # Maintain a mapping of function names to their database connections
 connection_mapping = {}
+connections_created = []
 
 async def setup_database_connection(connection_name: str, connection: dict, mcp: FastMCP, connection_name_counter: defaultdict) -> None:
     """
@@ -100,10 +100,15 @@ async def setup_api_connection(connection_name: str, connection: dict, mcp: Fast
     except Exception as e:
         logger.error(e, exc_info=True)
         return None
-
-@asynccontextmanager
-async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
-    """Manage application lifecycle with type-safe context"""
+    
+async def setup_connections():
+    """
+    Setup connections for the application.
+    This function is called during application startup, as well as whenever a new connection is added.
+    """
+    logger.info("Setting up connections...")
+    global mcp, connections_created
+    
     connections = None
     if os.path.exists(CONNECTIONS_FILE):
         connections = benedict.from_toml(CONNECTIONS_FILE)
@@ -113,6 +118,9 @@ async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
     # Dynamically create tools/resources for each connection
     connection_name_counter = defaultdict(int) # each connection name may be suffixed with a counter to ensure uniqueness, in case of duplicates
     for connection in connections:
+        if connection.get('uuid') in connections_created:
+            logger.info(f"Connection {connection['uuid']} already created, skipping...")
+            continue
         logger.info(f"Creating tool for connection: {connection['connector']}")
         connection_name = connection.pop('connector', None)
         connection_type = connection.pop('connection_type', None)
@@ -121,7 +129,12 @@ async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
             await setup_database_connection(connection_name, connection, mcp, connection_name_counter)
         elif connection_type=='api':
             await setup_api_connection(connection_name, connection, mcp, connection_name_counter)
+        connections_created.append(connection.get('uuid'))
 
+@asynccontextmanager
+async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
+    """Manage application lifecycle with type-safe context"""
+    await setup_connections()
     try:
         yield AppContext(db=None)
     finally:
@@ -139,19 +152,6 @@ async def ping(request):
 # Create an MCP server
 mcp = FastMCP("agentmode", lifespan=app_lifespan)
 
-connectors_grid = create_gradio_interface()
-app = Starlette(
-    routes=[
-        Route("/health_check", endpoint=ping, methods=['GET']),
-    ],
-    debug=True,
-)
-app = gr.mount_gradio_app(app, connectors_grid, path="/setup")
-
-log_config_file = str(importlib.resources.files('agentmode').joinpath('resources/log_config.json'))
-config = Config("agentmode.mcp_server:app", host="0.0.0.0", port=PORT, log_config=log_config_file)
-server = uvicorn.Server(config)
-
 @click.command()
 def cli():
     """
@@ -164,10 +164,7 @@ def cli():
     """
     async def start_server():
         click.echo("starting MCP server...")
-        await asyncio.gather(
-            server.serve(),
-            mcp.run_stdio_async()  # Directly call the async function to avoid nested event loops
-        )
+        await mcp.run_stdio_async()  # Directly call the async function to avoid nested event loops
 
     def handle_exit(signum, frame):
         click.echo("Shutting down MCP server...")

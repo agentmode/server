@@ -1,6 +1,7 @@
 import os
 import copy
 import importlib.resources
+import uuid
 
 import gradio as gr
 from benedict import benedict
@@ -8,6 +9,7 @@ import platformdirs
 
 from agentmode.logs import logger
 from agentmode.package_manager import install_dependencies
+from agentmode.mcp_server import setup_connections
 
 # Load connectors from a TOML file
 connectors_path = importlib.resources.files('agentmode').joinpath('connectors.toml')
@@ -142,7 +144,7 @@ def create_gradio_interface():
                     create_form(state)
     return demo
 
-def handle_submit(*args, **kwargs):
+async def handle_submit(*args, **kwargs):
     logger.info(f"Form submitted with args: {args}, kwargs: {kwargs}")
     global selected_connector, selected_connection_index, selected_form_type, connections_data, form_field_keys, progress_bar
 
@@ -158,7 +160,8 @@ def handle_submit(*args, **kwargs):
         if selected_connection_index is not None:
             connections_data['connections'][selected_connection_index] = form_data
         else:
-            # generate a new connection ID
+            # generate a new connection
+            form_data["uuid"] = str(uuid.uuid4())
             connections_data['connections'].append(form_data)
         # save the updated connections data to the TOML file
         connections_data.to_toml(filepath=CONNECTIONS_FILE)
@@ -173,6 +176,9 @@ def handle_submit(*args, **kwargs):
             if not successfull_install:
                 # display an alert in gradio if the installation fails
                 raise gr.Error("Failed to install dependencies, please see the logs", duration=5)
+            
+        # create the new MCP resources/tools
+        await setup_connections()
     return 'connectors'
 
 def event_handler(connector, connection_index):
