@@ -219,7 +219,7 @@ class DatabaseConnection:
 
 @dataclass
 class PostgreSQLConnection(DatabaseConnection):
-	platform = 'PostgreSQL'
+	platform = 'postgresql'
 	driver_type = 'async'
 	driver_interface = 'sqlalchemy'
 
@@ -228,7 +228,7 @@ class PostgreSQLConnection(DatabaseConnection):
 
 @dataclass
 class MySQLConnection(DatabaseConnection):
-	platform = 'MySQL'
+	platform = 'mysql'
 	driver_type = 'async'
 	driver_interface = 'sqlalchemy'
 
@@ -237,7 +237,7 @@ class MySQLConnection(DatabaseConnection):
 
 @dataclass
 class OracleDBConnection(DatabaseConnection):
-	platform = 'Oracle'
+	platform = 'oracle'
 	driver_type = 'async'
 	driver_interface = 'sqlalchemy'
 
@@ -246,7 +246,7 @@ class OracleDBConnection(DatabaseConnection):
 
 @dataclass
 class SQLServerConnection(DatabaseConnection):
-	platform = 'SQLServer'
+	platform = 'sqlserver'
 	driver_type = 'async'
 	driver_interface = 'sqlalchemy'
 
@@ -255,7 +255,7 @@ class SQLServerConnection(DatabaseConnection):
 
 @dataclass
 class HiveConnection(DatabaseConnection):
-	platform = 'Hive'
+	platform = 'hive'
 	driver_type = 'sync'
 	driver_interface = 'sqlalchemy'
 
@@ -268,7 +268,7 @@ class PrestoConnection(DatabaseConnection):
 	PyHive via SQLAlchemy also supports Presto, but it is no longer maintained
 	so we use https://github.com/prestodb/presto-python-client via DBAPI
 	"""
-	platform = 'Presto'
+	platform = 'presto'
 	driver_type = 'sync'
 	driver_interface = 'dbapi'
 
@@ -302,7 +302,7 @@ class Trino(DatabaseConnection):
 	"""
 	
 	"""
-	platform = 'Trino'
+	platform = 'trino'
 	driver_type = 'async'
 	driver_interface = 'dbapi'
 
@@ -327,7 +327,7 @@ class Trino(DatabaseConnection):
 		
 @dataclass
 class Snowflake(DatabaseConnection):
-	platform = 'Snowflake'
+	platform = 'snowflake'
 	driver_type = 'sync' # https://github.com/snowflakedb/snowflake-sqlalchemy/issues/218
 	driver_interface = 'sqlalchemy'
 
@@ -338,7 +338,7 @@ class Snowflake(DatabaseConnection):
 
 @dataclass
 class BigQuery(DatabaseConnection):
-	platform = 'BigQuery'
+	platform = 'bigquery'
 	driver_type = 'sync' # https://github.com/googleapis/python-bigquery-sqlalchemy/issues/1071
 	driver_interface = 'sqlalchemy'
 
@@ -350,7 +350,7 @@ class BigQuery(DatabaseConnection):
 
 @dataclass
 class Clickhouse(DatabaseConnection):
-	platform = 'Clickhouse'
+	platform = 'clickhouse'
 	driver_type = 'sync'
 	driver_interface = 'sqlalchemy'
 
@@ -359,7 +359,7 @@ class Clickhouse(DatabaseConnection):
 
 @dataclass
 class Databricks(DatabaseConnection):
-	platform = 'Databricks'
+	platform = 'databricks'
 	driver_type = 'sync'
 	driver_interface = 'sqlalchemy'
 
@@ -368,7 +368,7 @@ class Databricks(DatabaseConnection):
 
 @dataclass
 class SAPHana(DatabaseConnection):
-	platform = 'SAP HANA'
+	platform = 'sap_hana'
 	driver_type = 'sync'
 	driver_interface = 'sqlalchemy'
 
@@ -379,7 +379,7 @@ class SAPHana(DatabaseConnection):
 
 @dataclass
 class Teradata(DatabaseConnection):
-	platform = 'Teradata'
+	platform = 'teradata'
 	driver_type = 'sync'
 	driver_interface = 'sqlalchemy'
 
@@ -388,7 +388,7 @@ class Teradata(DatabaseConnection):
 
 @dataclass
 class CockroachDB(DatabaseConnection):
-	platform = 'CockroachDB'
+	platform = 'cockroachdb'
 	driver_type = 'async'
 	driver_interface = 'sqlalchemy'
 
@@ -397,7 +397,7 @@ class CockroachDB(DatabaseConnection):
 
 @dataclass
 class AWSAthena(DatabaseConnection):
-	platform = 'AWS Athena'
+	platform = 'aws_athena'
 	driver_type = 'sync'
 	driver_interface = 'sqlalchemy'
 

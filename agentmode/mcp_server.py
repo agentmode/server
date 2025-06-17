@@ -183,6 +183,14 @@ def process_args(ctx):
 
     # Convert the arguments into a dictionary
     args_dict = {raw_args[i].lstrip('-'): raw_args[i + 1] for i in range(0, len(raw_args), 2)}
+    # if any value is 'true' or 'false', convert it to a boolean
+    for key, value in args_dict.items():
+        if value.lower() == 'true':
+            args_dict[key] = True
+        elif value.lower() == 'false':
+            args_dict[key] = False
+        elif value.isdigit():
+            args_dict[key] = int(value)
     logger.info(f"Parsed arguments: {args_dict}")
     return args_dict
 
@@ -205,27 +213,12 @@ def cli(ctx):
     """
     global kwargs
     kwargs = process_args(ctx)
-    async def start_server():
-        click.echo("starting MCP server...")
-        await mcp.run_stdio_async()  # Directly call the async function to avoid nested event loops
-
-    def handle_exit(signum, frame):
-        click.echo("Shutting down MCP server...")
-        loop = asyncio.get_event_loop()
-        tasks = asyncio.all_tasks(loop)
-        for task in tasks:
-            task.cancel()
-        loop.stop()
-
-    # Register signal handlers for graceful shutdown
-    signal.signal(signal.SIGINT, handle_exit)
-    signal.signal(signal.SIGTERM, handle_exit)
 
     # Use asyncio.run only if no event loop is already running
     if not asyncio.get_event_loop().is_running():
-        asyncio.run(start_server())
+        asyncio.run(mcp.run_stdio_async())
     else:
-        asyncio.create_task(start_server())  # Use create_task if an event loop is already running
+        asyncio.create_task(mcp.run_stdio_async())
 
 if __name__ == "__main__":
     cli()
