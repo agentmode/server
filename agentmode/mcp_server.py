@@ -27,7 +27,6 @@ from agentmode.api.api_connection import APIConnection
 from agentmode.api.connectors.api_connector import APIConnector
 
 HOME_DIRECTORY = platformdirs.user_data_dir('agentmode', ensure_exists=True)
-CONNECTIONS_FILE = os.path.join(HOME_DIRECTORY, "connections.toml")
 PORT = os.getenv("PORT", 13000)
 # to debug: uv run mcp dev mcp_server.py
 
@@ -44,6 +43,7 @@ class AppContext:
 # Maintain a mapping of function names to their database connections
 connection_mapping = {}
 connections_created = []
+kwargs = {}
 
 async def setup_database_connection(connection_name: str, connection: dict, mcp: FastMCP, connection_name_counter: defaultdict) -> None:
     """
@@ -107,29 +107,52 @@ async def setup_connections():
     This function is called during application startup, as well as whenever a new connection is added.
     """
     logger.info("Setting up connections...")
-    global mcp, connections_created
+    global mcp, connections_created, kwargs
     
-    connections = None
-    if os.path.exists(CONNECTIONS_FILE):
-        connections = benedict.from_toml(CONNECTIONS_FILE)
-    if connections:
-        connections = connections.get("connections", [])
+    """
+    read the connections from the kwargs dictionary, which is populated by the CLI arguments
+    The expected format is:
+    mysql_1+host: value
+    mysql_1+port: value
+    mysql_1+username: value
+    mysql_1+password: value
+    mysql_1+database_name: value
+    mysql_1+read_only: value
+    """
 
+    parameters_per_connection = defaultdict(dict) # stores all parameters for each connection like 'mysql_1'
+    if kwargs:
+        for key, value in kwargs.items():
+            # split the key on the first '+' to get the connection name and the property
+            if '+' in key:
+                connection_name, property_name = key.split('+', 1)
+                parameters_per_connection[connection_name][property_name] = value
+    # for each connection, get the connection_type from connectors.toml
+    connectors_path = importlib.resources.files('agentmode').joinpath("connectors.toml")
+    connectors = benedict.from_toml(str(connectors_path))
+    # flatten the connectors data so we can look up connectors by label or name
+    list_connectors = {}
+    for group_name, group_connectors in connectors.items():
+        for connector_info in group_connectors:
+            list_connectors[connector_info.get("label", connector_info.get("name")).lower()] = connector_info
+    for connection_name, parameters in parameters_per_connection.items():
+        connection_type = list_connectors.get(connection_name, {}).get('connection_type')
+        if not connection_type:
+            logger.error(f"Connection type for {connection_name} not found in connectors.toml")
+            break
+        parameters_per_connection[connection_name]['connection_type'] = connection_type
+        
     # Dynamically create tools/resources for each connection
     connection_name_counter = defaultdict(int) # each connection name may be suffixed with a counter to ensure uniqueness, in case of duplicates
-    for connection in connections:
-        if connection.get('uuid') in connections_created:
-            logger.info(f"Connection {connection['uuid']} already created, skipping...")
-            continue
-        logger.info(f"Creating tool for connection: {connection['connector']}")
-        connection_name = connection.pop('connector', None)
-        connection_type = connection.pop('connection_type', None)
+    for connection, params in parameters_per_connection.items():
+        logger.info(f"Creating tool for connection: {connection}")
+        connection_name = connection
+        connection_type = params.pop('connection_type')
 
         if connection_type=='database': # Establish the database connection and store it in the mapping
-            await setup_database_connection(connection_name, connection, mcp, connection_name_counter)
+            await setup_database_connection(connection_name, params, mcp, connection_name_counter)
         elif connection_type=='api':
-            await setup_api_connection(connection_name, connection, mcp, connection_name_counter)
-        connections_created.append(connection.get('uuid'))
+            await setup_api_connection(connection_name, params, mcp, connection_name_counter)
 
 @asynccontextmanager
 async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
@@ -149,11 +172,29 @@ async def ping(request):
 	"""
 	return PlainTextResponse("OK", status_code=200)
 
+def process_args(ctx):
+    """Accept key-value pairs in '--key value' format and convert them to a dictionary."""
+    # Extract the raw arguments passed after the command
+    raw_args = ctx.args
+
+    # Ensure the arguments are in key-value pairs
+    if len(raw_args) % 2 != 0:
+        raise click.UsageError("Arguments must be provided in '--key value' pairs.")
+
+    # Convert the arguments into a dictionary
+    args_dict = {raw_args[i].lstrip('-'): raw_args[i + 1] for i in range(0, len(raw_args), 2)}
+    logger.info(f"Parsed arguments: {args_dict}")
+    return args_dict
+
 # Create an MCP server
 mcp = FastMCP("agentmode", lifespan=app_lifespan)
 
-@click.command()
-def cli():
+@click.command(context_settings={
+    "ignore_unknown_options": True,
+    "allow_extra_args": True,
+})
+@click.pass_context
+def cli(ctx):
     """
     Command line interface to run the MCP server.
     SSE MCP servers would be nice, but VS Code doesn't support a start command for them yet
@@ -162,6 +203,8 @@ def cli():
     server only runs if you're using SSE,
     so we have to run uvicorn ourselves.
     """
+    global kwargs
+    kwargs = process_args(ctx)
     async def start_server():
         click.echo("starting MCP server...")
         await mcp.run_stdio_async()  # Directly call the async function to avoid nested event loops
