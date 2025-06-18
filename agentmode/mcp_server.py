@@ -5,20 +5,14 @@ from dataclasses import dataclass
 from typing import Any
 from collections import defaultdict
 import asyncio
-import signal
 import importlib.resources
 
-import uvicorn
-from uvicorn import Config, Server
-from starlette.applications import Starlette
-from starlette.routing import Mount, Route
 from starlette.responses import (
 	PlainTextResponse,
 )
 import click
 from benedict import benedict
-from mcp.server.fastmcp import FastMCP, Context
-import gradio as gr
+from mcp.server.fastmcp import FastMCP
 import platformdirs
 
 from agentmode.logs import logger
@@ -123,9 +117,9 @@ async def setup_connections():
     parameters_per_connection = defaultdict(dict) # stores all parameters for each connection like 'mysql_1'
     if kwargs:
         for key, value in kwargs.items():
-            # split the key on the first '+' to get the connection name and the property
-            if '+' in key:
-                connection_name, property_name = key.split('+', 1)
+            # split the key on the first ':' to get the connection name and the property
+            if ':' in key:
+                connection_name, property_name = key.split(':', 1)
                 parameters_per_connection[connection_name][property_name] = value
     # for each connection, get the connection_type from connectors.toml
     connectors_path = importlib.resources.files('agentmode').joinpath("connectors.toml")

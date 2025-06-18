@@ -36,12 +36,12 @@ server_params_mysql = StdioServerParameters(
 	args=[
 		'run', 
 		'mcp_server.py', 
-		'--mysql+host', CREDENTIALS["host"],
-		'--mysql+port', str(CREDENTIALS["port"]),
-		'--mysql+username', CREDENTIALS["username"],
-		'--mysql+password', CREDENTIALS["password"],
-		'--mysql+database_name', CREDENTIALS["database_name"],
-		'--mysql+read_only', str(CREDENTIALS["read_only"]).lower(),
+		'--mysql:host', CREDENTIALS["host"],
+		'--mysql:port', str(CREDENTIALS["port"]),
+		'--mysql:username', CREDENTIALS["username"],
+		'--mysql:password', CREDENTIALS["password"],
+		'--mysql:database_name', CREDENTIALS["database_name"],
+		'--mysql:read_only', str(CREDENTIALS["read_only"]).lower(),
 	],  # we use our own version of stdio_client so that it does use_shell=True
 	# append path_to_append to the PATH environment variable
 	cwd=os.path.abspath(os.path.join(os.path.dirname(__file__), '../agentmode')),
