@@ -207,6 +207,7 @@ def cli(ctx):
     """
     global kwargs
     kwargs = process_args(ctx)
+    click.echo(f"Starting MCP server")
 
     # Use asyncio.run only if no event loop is already running
     if not asyncio.get_event_loop().is_running():
