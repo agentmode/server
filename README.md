@@ -1,10 +1,20 @@
 # AgentMode ✨
 
+[![smithery badge](https://smithery.ai/badge/@agentmode/server)](https://smithery.ai/server/@agentmode/server)
+
 AgentMode is an all-in-one Model Context Protocol (MCP) server that connects your coding AI to dozens of databases, data warehouses, data pipelines, cloud services, and more. This extension is designed to streamline your development workflow by providing seamless integration with various data and cloud platforms.
 
 ![flow diagram!](https://cdn.hashnode.com/res/hashnode/image/upload/v1746248830909/723435d9-255c-43a2-a2a2-1691a161e45f.webp "AgentMode flow diagram")
 
 ## Installation 👨‍💻
+
+### Installing via Smithery
+
+To install AgentMode for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@agentmode/server):
+
+```bash
+npx -y @smithery/cli install @agentmode/server --client claude
+```
 
 ### quick start with VS code
 1. Install our [VS Code extension](https://marketplace.visualstudio.com/items?itemName=agentmode.agentmode).
