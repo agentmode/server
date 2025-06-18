@@ -87,7 +87,7 @@ Please create a .vscode/settings.json file in your workspace, and add the follow
     }
 }
 ```
-<details>
+</details>
 
 <details>
 <summary>Manual MCP configuration for Cursor</summary>
