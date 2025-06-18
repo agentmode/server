@@ -7,14 +7,18 @@ AgentMode is an all-in-one Model Context Protocol (MCP) server that connects you
 ## Installation 👨‍💻
 
 ### Quick start for VS Code, Cursor, and VS Code Insiders
-VS Code Button (see the instructions below for how to add other databases)
-Cursor button
-VS Code Insiders button
+
+[<img src="https://img.shields.io/badge/VS_Code-VS_Code?style=flat-square&label=Install%20Server&color=0098FF" alt="Install in VS Code">](vscode:mcp/install?
+'%7B%22name%22%3A%22agentmode%22%2C%22command%22%3A%22uvx%20agentmodeserver%22%2C%22args%22%3A%5B%22--mysql%3Ahost%22%2C%22host%22%2C%22--mysql%3Aport%22%2C%22port%22%2C%22--mysql%3Ausername%22%2C%22username%22%2C%22--mysql%3Apassword%22%2C%22password%22%2C%22--mysql%3Adatabase_name%22%2C%22database_name%22%2C%22--mysql%3Aread_only%22%2C%22true%22%5D%7D)
+[<img alt="Install in VS Code Insiders" src="https://img.shields.io/badge/VS_Code_Insiders-VS_Code_Insiders?style=flat-square&label=Install%20Server&color=24bfa5">](vscode-insiders:mcp/install?
+'%7B%22name%22%3A%22agentmode%22%2C%22command%22%3A%22uvx%20agentmodeserver%22%2C%22args%22%3A%5B%22--mysql%3Ahost%22%2C%22host%22%2C%22--mysql%3Aport%22%2C%22port%22%2C%22--mysql%3Ausername%22%2C%22username%22%2C%22--mysql%3Apassword%22%2C%22password%22%2C%22--mysql%3Adatabase_name%22%2C%22database_name%22%2C%22--mysql%3Aread_only%22%2C%22true%22%5D%7D)
+[<img alt="Install in Cursor" src="https://www.agentmode.app/assets/images/add_to_cursor.png">](cursor://anysphere.cursor-deeplink/mcp/install?name=agentmodeserver&config=eyJhZ2VudG1vZGUiOnsiY29tbWFuZCI6InV2eCBhZ2VudG1vZGUiLCJhcmdzIjpbIi0tbXlzcWw6aG9zdCIsImhvc3QiLCItLW15c3FsOnBvcnQiLCJwb3J0IiwiLS1teXNxbDp1c2VybmFtZSIsInVzZXJuYW1lIiwiLS1teXNxbDpwYXNzd29yZCIsInBhc3N3b3JkIiwiLS1teXNxbDpkYXRhYmFzZV9uYW1lIiwiZGF0YWJhc2VfbmFtZSIsIi0tbXlzcWw6cmVhZF9vbmx5IiwidHJ1ZSJdfX0=)
+
+(replace the credentials in the config with your own, and see the instructions below for how to add other databases)
 
 ### Configuring database connections
 
-Start with MCP server by installing uv if you haven't already, then run: `uvx agentmode`
-Pass the following keyword arguments for each database you'd like to connect to, with the name of the database as the prefix before the ':'
+Start with MCP server by [installing uv](https://docs.astral.sh/uv/getting-started/installation/) if you haven't already, then run: `uvx agentmode` from your terminal.
 
 You can configure each database connection by specifying the following parameters:
 
@@ -77,8 +81,7 @@ Please create a .vscode/settings.json file in your workspace, and add the follow
                     "--mysql:password", "password",
                     "--mysql:database_name", "database_name",
                     "--mysql:read_only", "true"
-                ],
-                "env": {}
+                ]
             }
         }
     }
@@ -86,7 +89,7 @@ Please create a .vscode/settings.json file in your workspace, and add the follow
 ```
 <details>
 
-
+<details>
 <summary>Manual MCP configuration for Cursor</summary>
 Please create a \~/.cursor/mcp.json file in your home directory. This makes MCP servers available in all your Cursor workspaces.
   
@@ -141,30 +144,6 @@ Please replace 'YOUR_INSTALLATION_FOLDER' below with the folder you setup your u
 
 ```
 </details>
-
-## MCP (Model Context Protocol) 🌐
-
-AgentMode leverages the [Model Context Protocol](https://modelcontextprotocol.io) (MCP) to enable your coding AI to:
-- Access and query databases and data warehouses.
-- Interact with data pipelines for real-time or batch processing.
-- Use a web browser.
-- See logs from your production services.
-- Connect to cloud services for storage, computation, and more.
-
-## Connections 🔌
-
-![connections setup!](https://cdn.hashnode.com/res/hashnode/image/upload/v1746249095886/cf437270-7eb4-4e5a-ac19-7165cdcd2eeb.png?auto=compress,format&format=webp "AgentMode connections")
-
-AgentMode supports a wide range of connections, including:
-- **Databases**: MySQL, PostgreSQL, etc.
-- **Data Warehouses**: Snowflake, BigQuery, Redshift, etc.
-- **Data Pipelines**: Airflow, Prefect, etc.
-
-To configure connections, follow these steps:
-1. Start the MCP server and go to `http://localhost:13000/setup`
-2. Click on the icon of the connection you'd like to setup.
-3. Fill out the connection details and credentials (all credentials are stored locally on your machine).
-4. Any required dependencies will be installed on-the-fly.
 
 ## Help 🛟
 
