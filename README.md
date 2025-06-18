@@ -12,7 +12,7 @@ AgentMode is an all-in-one Model Context Protocol (MCP) server that connects you
 
 [![Install in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-VS_Code_Insiders?style=flat-square&label=Install%20Server&color=24bfa5)](https://insiders.vscode.dev/redirect?url=vscode-insiders:mcp/install?%7B%22name%22%3A%22agentmode%22%2C%22command%22%3A%22uvx%20agentmode%22%2C%22args%22%3A%5B%22--mysql%3Ahost%22%2C%22host%22%2C%22--mysql%3Aport%22%2C%22port%22%2C%22--mysql%3Ausername%22%2C%22username%22%2C%22--mysql%3Apassword%22%2C%22password%22%2C%22--mysql%3Adatabase_name%22%2C%22database_name%22%2C%22--mysql%3Aread_only%22%2C%22true%22%5D%7D)
 
-[![Install in Cursor](https://www.agentmode.app/assets/images/add_to_cursor.png)](cursor://anysphere.cursor-deeplink/mcp/install?name=agentmode&config=eyJhZ2VudG1vZGUiOnsiY29tbWFuZCI6InV2eCBhZ2VudG1vZGUiLCJhcmdzIjpbIi0tbXlzcWw6aG9zdCIsImhvc3QiLCItLW15c3FsOnBvcnQiLCJwb3J0IiwiLS1teXNxbDp1c2VybmFtZSIsInVzZXJuYW1lIiwiLS1teXNxbDpwYXNzd29yZCIsInBhc3N3b3JkIiwiLS1teXNxbDpkYXRhYmFzZV9uYW1lIiwiZGF0YWJhc2VfbmFtZSIsIi0tbXlzcWw6cmVhZF9vbmx5IiwidHJ1ZSJdfX0=)
+[![Install in Cursor](https://www.agentmode.app/assets/images/add_to_cursor.png)](https://insiders.vscode.dev/redirect?url=cursor://anysphere.cursor-deeplink/mcp/install?name=agentmode&config=eyJhZ2VudG1vZGUiOnsiY29tbWFuZCI6InV2eCBhZ2VudG1vZGUiLCJhcmdzIjpbIi0tbXlzcWw6aG9zdCIsImhvc3QiLCItLW15c3FsOnBvcnQiLCJwb3J0IiwiLS1teXNxbDp1c2VybmFtZSIsInVzZXJuYW1lIiwiLS1teXNxbDpwYXNzd29yZCIsInBhc3N3b3JkIiwiLS1teXNxbDpkYXRhYmFzZV9uYW1lIiwiZGF0YWJhc2VfbmFtZSIsIi0tbXlzcWw6cmVhZF9vbmx5IiwidHJ1ZSJdfX0=)
 
 (replace the credentials in the config with your own, and see the instructions below for how to add other databases)
 
